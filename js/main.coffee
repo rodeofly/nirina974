@@ -37,11 +37,11 @@ nodes = [
   }
   {
     id: 1
-    reflexive: true
+    reflexive: false
   }
   {
     id: 2
-    reflexive: false
+    reflexive: true
   }
 ]
 lastNodeId = 2
@@ -54,6 +54,12 @@ links = [
   }
   {
     source: nodes[1]
+    target: nodes[2]
+    left: false
+    right: true
+  }
+  {
+    source: nodes[0]
     target: nodes[2]
     left: false
     right: true
@@ -297,22 +303,22 @@ keydown = ->
       selected_link = null
       selected_node = null
       restart()
-    when 66
-      # B
+    when 65
+      # A
       if selected_link
         # set link direction to both left and right
-        selected_link.left = true
-        selected_link.right = true
+        selected_link.left = false
+        selected_link.right = false
       restart()
-    when 76
-      # L
+    when 71
+      # G
       if selected_link
         # set link direction to left only
         selected_link.left = true
         selected_link.right = false
       restart()
-    when 82
-      # R
+    when 68
+      # D
       if selected_node
         # toggle node reflexivity
         selected_node.reflexive = !selected_node.reflexive
@@ -400,7 +406,7 @@ dnd = new DnDFileController '#upload', (files) ->
       t.source = nodes[l.source.id]
       t.target = nodes[l.target.id]
       t.left = l.left
-      l.right = l.right
+      t.right = l.right
       links.push t
 
     console.log links

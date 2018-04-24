@@ -1,2 +1,2 @@
-# gg974
-Good Graphes. S'amuser avec des graphes !
+# Nirina974
+Du graphe de jeu aux jeux sur les graphes
