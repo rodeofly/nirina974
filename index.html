@@ -9,6 +9,7 @@
         <title>Nirina974</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="shortcut icon" href="apple-touch-icon.png">
         <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
         <link rel="stylesheet" href="css/normalize.min.css">
@@ -46,7 +47,7 @@
                     <section>
                         <h2>L'éditeur</h2>
                         <button id="genSVG">→SVG</button><button id="genJSON">Garder le graphe</button><button id="importJSON">Récupérer un graphe</button>
- <div id="upload" style="display:none;"><div class="close"></div>Drag&Drop JSON File...</div>
+ <div id="upload" style="display:none;"><div class="close"></div>Glisser un graphe json</div>
         <input type="file" style="display:none" id="file_upload" />
 <a id="save" href="" download=""></a>
 <div id="graf974"></div>
@@ -77,7 +78,9 @@
                             vers un sommet adjacent.</li>
                             <li>Le second joueur déplace alors à son tour le pion, depuis le sommet où 
                             il se trouve actuellement, vers un sommet adjacent...</li>
-                            <li>Le premier joueur qui réussit à placer le pion vers une arrivée a gagné.</li>
+                            <li>... et ainsi de suite, chacun son tour déplace le pion depuis le sommet où il se trouve actuellement, vers 
+                            un sommet adjacent à celui-ci. Tant que c'est possible...</li>
+                            <li>Le premier des deux joueurs qui réussit à placer le pion vers une arrivée a gagné.</li>
                         </ol>
                         </p>
                     </footer>
@@ -89,7 +92,7 @@
 <p>Pour créer un sommet, cliquer dans une zone vide.</p>
 <p>Pour déplacer ce sommet, maintenir <b>[ctrl]+[clic]</b>
 <p>Cliquer sur un sommet pour le selectionner. Appuyer sur <b>[suppr]</b> pour le supprimer.</p>
-<p>Appuyer sur <b>[R]</b> pour changer sa reflexivité.</p>
+<p>Appuyer sur <b>[D]</b> pour doubler la largeur du trait (ou revenir à la largeur simple).</p>
 <p>Pour créer une arête, glisser avec la souris d'un sommet vers un autre.</p>
 <p>Pour selectionner une arête, maintenir <b>[ctrl]+clic</b>.</p>
 <p>Pour changer l'orientation d'une arête, la selectionner puis frapper <b>[G]</b>auche, <b>[D]</b>roite ou <b>[A]</b>ucun</p>

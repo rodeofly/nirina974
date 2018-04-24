@@ -7,20 +7,20 @@ colors = d3.scale.category10()
 svg = d3.select('#graf974').append('svg').attr('oncontextmenu', 'return false;').attr('width', width).attr('height', height)
 svg.append('svg:defs').append('svg:marker')
   .attr('id', 'end-arrow')
-  .attr('viewBox', '0 -5 10 10')
-  .attr('refX', 6).attr('markerWidth', 3)
-  .attr('markerHeight', 3)
+  .attr('viewBox', '0 -10 20 20')
+  .attr('refX', 12).attr('markerWidth', 6)
+  .attr('markerHeight', 6)
   .attr('orient', 'auto').append('svg:path')
-  .attr('d', 'M0,-5L10,0L0,5')
+  .attr('d', 'M0,-10L20,0L0,10')
   .attr 'fill', '#000'
 svg.append('svg:defs').append('svg:marker')
   .attr('id', 'start-arrow')
-  .attr('viewBox', '0 -5 10 10')
-  .attr('refX', 4)
-  .attr('markerWidth', 3)
-  .attr('markerHeight', 3)
+  .attr('viewBox', '0 -10 20 20')
+  .attr('refX', 8)
+  .attr('markerWidth', 6)
+  .attr('markerHeight', 6)
   .attr('orient', 'auto').append('svg:path')
-  .attr('d', 'M10,-5L0,0L10,5')
+  .attr('d', 'M20,-10L0,0L20,10')
   .attr 'fill', '#000'   
 # line displayed when dragging new nodes
 drag_line = svg.append('svg:path').attr('class', 'link dragline hidden').attr('d', 'M0,0L0,0')
@@ -433,7 +433,7 @@ save = (type) ->
         .attr("title", "svg_title")
         .attr("version", 1.1)
         .attr("xmlns", "http://www.w3.org/2000/svg")
-        .node().parentNode.innerHTML  
+        .node().parentNode.innerHTML 
       svgBlob = new Blob([html], {type:"image/svg+xml;charset=utf-8"})
       dataStr = URL.createObjectURL(svgBlob);
       
