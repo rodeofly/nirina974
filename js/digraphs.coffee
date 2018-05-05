@@ -473,7 +473,7 @@ save = (type) ->
   dlAnchorElem.click()
 
 $ ->
-  console.log nodes,links
+#  console.log nodes,links
   $( "#genJSON" ).on "click", -> save("json")
   $( "#genSVG" ).on "click", -> save("svg")
   

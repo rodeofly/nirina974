@@ -489,7 +489,6 @@ save = function(type) {
 };
 
 $(function() {
-  console.log(nodes, links);
   $("#genJSON").on("click", function() {
     return save("json");
   });
