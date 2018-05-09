@@ -33,7 +33,7 @@ drag_line = svg.append('svg:path').attr('class', 'link dragline hidden').attr('d
 nodes = [
   {
     id: 0
-    reflexive: false
+    reflexive: true # parce que depart
   }
   {
     id: 1
@@ -41,14 +41,38 @@ nodes = [
   }
   {
     id: 2
-    reflexive: true
+    reflexive: false
+  }
+  {
+    id: 3
+    reflexive: true # parce que arrivee
+  }
+  {
+    id: 4
+    reflexive: false
+  }
+  {
+    id: 5
+    reflexive: false
   }
 ]
-lastNodeId = 2
+lastNodeId = 5
 links = [
   {
     source: nodes[0]
     target: nodes[1]
+    left: false
+    right: true
+  }
+  {
+    source: nodes[0]
+    target: nodes[4]
+    left: false
+    right: true
+  }
+  {
+    source: nodes[0]
+    target: nodes[5]
     left: false
     right: true
   }
@@ -59,8 +83,38 @@ links = [
     right: true
   }
   {
-    source: nodes[0]
+    source: nodes[2]
+    target: nodes[3]
+    left: false
+    right: true
+  }
+  {
+    source: nodes[4]
+    target: nodes[3]
+    left: false
+    right: true
+  }
+  {
+    source: nodes[4]
+    target: nodes[5]
+    left: false
+    right: true
+  }
+  {
+    source: nodes[5]
+    target: nodes[1]
+    left: false
+    right: true
+  }
+  {
+    source: nodes[5]
     target: nodes[2]
+    left: false
+    right: true
+  }
+  {
+    source: nodes[5]
+    target: nodes[3]
     left: false
     right: true
   }
@@ -82,8 +136,8 @@ tick = ->
     dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY)
     normX = deltaX / dist
     normY = deltaY / dist
-    sourcePadding = if d.left then 17 else 12
-    targetPadding = if d.right then 17 else 12
+    sourcePadding = if d.left then 22 else 12
+    targetPadding = if d.right then 22 else 12
     sourceX = d.source.x + sourcePadding * normX
     sourceY = d.source.y + sourcePadding * normY
     targetX = d.target.x - (targetPadding * normX)
@@ -93,7 +147,7 @@ tick = ->
   circle.attr 'transform', (d) -> return "translate(#{d.x}, #{d.y})"
 
 # init D3 force layout
-force = d3.layout.force().nodes(nodes).links(links).size([width, height]).linkDistance(150).charge(-500).on('tick', tick)
+force = d3.layout.force().nodes(nodes).links(links).size([width/2, height/2]).linkDistance(80).charge(-500).on('tick', tick)
 
 # mouse event vars
 selected_node = null
@@ -240,6 +294,7 @@ restart = ->
   $("#sortants").empty().append "<th>degrés sortants</th>"
   $("#departs").empty()
   $("#arrivees").empty()
+  sommet.reflexive = false for sommet in nodes
   for sommet in nodes
     $("#sommets").append "<td>#{sommet.id}</td>"
     [e,s] = [0,0]
@@ -260,10 +315,12 @@ restart = ->
         s += 1
     $("#entrants").append "<td>#{e}</td>"
     $("#sortants").append "<td>#{s}</td>"
-    if s==0
+    if s==0 and e>0
       $("#arrivees").append "<li>#{sommet.id}</li>"
-    if e==0
+      sommet.reflexive = true
+    if e==0 and s>0
       $("#departs").append "<li>#{sommet.id}</li>"
+      sommet.reflexive = true
         
   return
 
