@@ -4,27 +4,9 @@ width = 960
 height = 500
 colors = d3.scale.category10()
 # define arrow markers for graph links
-svg = d3.select('#graf974').append('svg').attr('oncontextmenu', 'return false;').attr('width', width).attr('height', height)
-svg.append('svg:defs').append('svg:marker')
-  .attr('id', 'end-arrow')
-  .attr('viewBox', '0 -10 20 20')
-  .attr('refX', 12).attr('markerWidth', 6)
-  .attr('markerHeight', 6)
-  .attr('orient', 'auto').append('svg:path')
-  .attr('d', 'M0,-10L20,0L0,10')
-  .attr 'fill', '#000'
-svg.append('svg:defs').append('svg:marker')
-  .attr('id', 'start-arrow')
-  .attr('viewBox', '0 -10 20 20')
-  .attr('refX', 8)
-  .attr('markerWidth', 6)
-  .attr('markerHeight', 6)
-  .attr('orient', 'auto').append('svg:path')
-  .attr('d', 'M20,-10L0,0L20,10')
-  .attr 'fill', '#000'   
+svg = d3.select('#graf').append('svg').attr('oncontextmenu', 'return false;').attr('width', width).attr('height', height)
 # line displayed when dragging new nodes
 drag_line = svg.append('svg:path').attr('class', 'link dragline hidden').attr('d', 'M0,0L0,0')
-
 
 # set up initial nodes and links
 #  - nodes are known by 'id', not by index in array.
@@ -33,7 +15,7 @@ drag_line = svg.append('svg:path').attr('class', 'link dragline hidden').attr('d
 nodes = [
   {
     id: 0
-    reflexive: true # parce que depart
+    reflexive: false
   }
   {
     id: 1
@@ -45,7 +27,7 @@ nodes = [
   }
   {
     id: 3
-    reflexive: true # parce que arrivee
+    reflexive: false
   }
   {
     id: 4
@@ -57,66 +39,68 @@ nodes = [
   }
 ]
 lastNodeId = 5
+couleur = []
+couleur[i.toString()]=i for i in [0..lastNodeId]
 links = [
   {
     source: nodes[0]
     target: nodes[1]
     left: false
-    right: true
+    right: false
   }
   {
     source: nodes[0]
     target: nodes[4]
     left: false
-    right: true
+    right: false
   }
   {
     source: nodes[0]
     target: nodes[5]
     left: false
-    right: true
+    right: false
   }
   {
     source: nodes[1]
     target: nodes[2]
     left: false
-    right: true
+    right: false
   }
   {
     source: nodes[2]
     target: nodes[3]
     left: false
-    right: true
+    right: false
   }
   {
     source: nodes[4]
     target: nodes[3]
     left: false
-    right: true
+    right: false
   }
   {
     source: nodes[4]
     target: nodes[5]
     left: false
-    right: true
+    right: false
   }
   {
     source: nodes[5]
     target: nodes[1]
     left: false
-    right: true
+    right: false
   }
   {
     source: nodes[5]
     target: nodes[2]
     left: false
-    right: true
+    right: false
   }
   {
     source: nodes[5]
     target: nodes[3]
     left: false
-    right: true
+    right: false
   }
 ]
 
@@ -136,8 +120,8 @@ tick = ->
     dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY)
     normX = deltaX / dist
     normY = deltaY / dist
-    sourcePadding = if d.left then 22 else 12
-    targetPadding = if d.right then 22 else 12
+    sourcePadding = 12
+    targetPadding = 12
     sourceX = d.source.x + sourcePadding * normX
     sourceY = d.source.y + sourcePadding * normY
     targetX = d.target.x - (targetPadding * normX)
@@ -171,14 +155,10 @@ restart = ->
   # update existing links
   path
     .classed 'selected', (d) -> d == selected_link
-    .style   'marker-start', (d) -> if d.left  then 'url(#start-arrow)' else ''
-    .style   'marker-end'  , (d) -> if d.right then 'url(#end-arrow)'   else ''
   # add new links
   path.enter().append('svg:path')
     .attr('class', 'link')
     .classed 'selected', (d) -> d == selected_link
-    .style 'marker-start', (d) -> if d.left then 'url(#start-arrow)' else ''
-    .style 'marker-end', (d) -> if d.right then 'url(#end-arrow)' else ''
     .on 'mousedown', (d) -> 
       if d3.event.ctrlKey    
         # select link
@@ -197,15 +177,15 @@ restart = ->
   circle = circle.data(nodes, (d) -> d.id)
   # update existing nodes (reflexive & selected visual states)
   circle.selectAll('circle')
-    .style('fill', (d) -> if d == selected_node then d3.rgb(colors(d.id)).brighter().toString() else colors(d.id))
+    .style('fill', (d) -> if d == selected_node then d3.rgb(colors(couleur[d.id])).brighter().toString() else colors(couleur[d.id]))
     .classed 'reflexive', (d) -> d.reflexive
   # add new nodes
   g = circle.enter().append('svg:g')
   g.append('svg:circle')
     .attr('class', 'node')
     .attr('r', 12)
-    .style('fill', (d) -> if d == selected_node then d3.rgb(colors(d.id)).brighter().toString() else colors(d.id))
-    .style('stroke', (d) -> d3.rgb(colors(d.id)).darker().toString())
+    .style('fill', (d) -> if d == selected_node then d3.rgb(colors(couleur[d.id])).brighter().toString() else colors(couleur[d.id]))
+    .style('stroke', (d) -> d3.rgb(colors(couleur[d.id])).darker().toString())
     .classed('reflexive', (d) -> d.reflexive)
     .on 'mouseover', (d) ->
       return if !mousedown_node or d == mousedown_node    
@@ -230,7 +210,6 @@ restart = ->
       selected_link = null
       # reposition drag line
       drag_line
-        .style('marker-end', 'url(#end-arrow)')
         .classed('hidden', false)
         .attr 'd', "M#{mousedown_node.x}, #{mousedown_node.y}L#{mousedown_node.x}, #{mousedown_node.y}"
       restart()
@@ -239,7 +218,7 @@ restart = ->
    .on 'mouseup', (d) ->
       return if !mousedown_node      
       # needed by FF
-      drag_line.classed('hidden', true).style 'marker-end', ''
+      drag_line.classed('hidden', true)
       # check for drag-to-self
       mouseup_node = d
       if mouseup_node == mousedown_node
@@ -264,15 +243,12 @@ restart = ->
       link = links.filter((l) ->
         l.source == source and l.target == target
       )[0]
-      if link
-        link[direction] = true
-      else
+      unless link
         link =
           source: source
           target: target
           left: false
           right: false
-        link[direction] = true
         links.push link
       # select new link
       selected_link = link
@@ -290,38 +266,16 @@ restart = ->
   # set the graph in motion
   force.start()
   $("#sommets").empty().append "<th>sommets</th>"
-  $("#entrants").empty().append "<th>degrés entrants</th>"
-  $("#sortants").empty().append "<th>degrés sortants</th>"
-  $("#departs").empty()
-  $("#arrivees").empty()
-  sommet.reflexive = false for sommet in nodes
+  $("#entrants").empty().append "<th>degrés</th>"
   for sommet in nodes
     $("#sommets").append "<td>#{sommet.id}</td>"
-    [e,s] = [0,0]
+    na = 0
     for arete in links
-      if arete.source==sommet and arete.right
-        s += 1
-      if arete.target==sommet and arete.left
-        s += 1
-      if arete.target==sommet and arete.right
-        e += 1
-      if arete.source==sommet and arete.left
-        e += 1
-      if arete.source==sommet and not arete.right and not arete.left
-        e += 1
-        s += 1
-      if arete.target==sommet and not arete.right and not arete.left
-        e += 1
-        s += 1
-    $("#entrants").append "<td>#{e}</td>"
-    $("#sortants").append "<td>#{s}</td>"
-    if s==0 and e>0
-      $("#arrivees").append "<li>#{sommet.id}</li>"
-      sommet.reflexive = true
-    if e==0 and s>0
-      $("#departs").append "<li>#{sommet.id}</li>"
-      sommet.reflexive = true
-        
+      if arete.source==sommet
+        na += 1
+      if arete.target==sommet
+        na += 1
+    $("#entrants").append "<td>#{na}</td>"
   return
 
 mousedown = ->
@@ -336,6 +290,7 @@ mousedown = ->
   node = 
     id: ++lastNodeId
     reflexive: false
+  couleur[node.id]=node.id
   node.x = point[0]
   node.y = point[1]
   nodes.push node
@@ -390,29 +345,21 @@ keydown = ->
       selected_link = null
       selected_node = null
       restart()
-    when 65
-      # A
-      if selected_link
-        # set link direction to both left and right
-        selected_link.left = false
-        selected_link.right = false
-      restart()
-    when 71
-      # G
-      if selected_link
-        # set link direction to left only
-        selected_link.left = true
-        selected_link.right = false
-      restart()
-    when 68
-      # D
+      # M pour moins (diminuer couleur)
+    when 77, 109
       if selected_node
-        # toggle node reflexivity
-        selected_node.reflexive = !selected_node.reflexive
-      else if selected_link
-        # set link direction to right only
-        selected_link.left = false
-        selected_link.right = true
+        index = selected_node.id
+        couleur[index] -= 1
+        if couleur[index]<0
+          couleur[index] += 10
+      restart()
+      # P pour plus (augmenter couleur)
+    when 80, 112
+      if selected_node
+        index = selected_node.id
+        couleur[index] += 1
+        if couleur[index]>9
+          couleur[index] -= 10
       restart()
   return
 
@@ -492,8 +439,8 @@ dnd = new DnDFileController '#upload', (files) ->
       t = {}
       t.source = nodes[l.source.id]
       t.target = nodes[l.target.id]
-      t.left = l.left
-      t.right = l.right
+      t.left = false
+      t.right = false
       links.push t
 
     console.log links
@@ -516,7 +463,7 @@ save = (type) ->
     when "json" 
       dataStr += encodeURIComponent(JSON.stringify({nodes: nodes, links: links, lastNodeId: lastNodeId}))
     when "svg"
-      html = d3.select("#graf974").select("svg")
+      html = d3.select("#graf").select("svg")
         .attr("title", "svg_title")
         .attr("version", 1.1)
         .attr("xmlns", "http://www.w3.org/2000/svg")
