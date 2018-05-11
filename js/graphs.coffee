@@ -1,7 +1,7 @@
   
 # set up SVG for D3
-width = 960
-height = 500
+width = 800
+height = 480
 colors = d3.scale.category10()
 # define arrow markers for graph links
 svg = d3.select('#graf').append('svg').attr('oncontextmenu', 'return false;').attr('width', width).attr('height', height)

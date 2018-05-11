@@ -3,9 +3,9 @@
 // set up SVG for D3
 var DnDFileController, circle, circlesGroup, colors, couleur, dnd, drag_line, force, height, i, j, keydown, keyup, lastKeyDown, lastNodeId, links, mousedown, mousedown_link, mousedown_node, mousemove, mouseup, mouseup_node, nodes, path, pathsGroup, ref, resetMouseVars, restart, save, selected_link, selected_node, spliceLinksForNode, svg, tick, width;
 
-width = 960;
+width = 800;
 
-height = 500;
+height = 480;
 
 colors = d3.scale.category10();
 

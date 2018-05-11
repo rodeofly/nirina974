@@ -1,27 +1,10 @@
   
 # set up SVG for D3
-width = 960
-height = 500
+width = 800
+height = 480
 colors = d3.scale.category10()
 # define arrow markers for graph links
 svg = d3.select('#graf974').append('svg').attr('oncontextmenu', 'return false;').attr('width', width).attr('height', height)
-svg.append('svg:defs').append('svg:marker')
-  .attr('id', 'end-arrow')
-  .attr('viewBox', '0 -10 20 20')
-  .attr('refX', 12).attr('markerWidth', 6)
-  .attr('markerHeight', 6)
-  .attr('orient', 'auto').append('svg:path')
-  .attr('d', 'M0,-10L20,0L0,10')
-  .attr 'fill', '#000'
-svg.append('svg:defs').append('svg:marker')
-  .attr('id', 'start-arrow')
-  .attr('viewBox', '0 -10 20 20')
-  .attr('refX', 8)
-  .attr('markerWidth', 6)
-  .attr('markerHeight', 6)
-  .attr('orient', 'auto').append('svg:path')
-  .attr('d', 'M20,-10L0,0L20,10')
-  .attr 'fill', '#000'   
 # line displayed when dragging new nodes
 drag_line = svg.append('svg:path').attr('class', 'link dragline hidden').attr('d', 'M0,0L0,0')
 
@@ -33,15 +16,12 @@ drag_line = svg.append('svg:path').attr('class', 'link dragline hidden').attr('d
 nodes = [
   {
     id: 0
-    reflexive: false
   }
   {
     id: 1
-    reflexive: false
   }
   {
     id: 2
-    reflexive: true
   }
 ]
 lastNodeId = 2
@@ -50,21 +30,18 @@ links = [
     source: nodes[0]
     target: nodes[1]
     left: false
-    right: true
-  }
-  {
-    source: nodes[1]
-    target: nodes[2]
-    left: false
-    right: true
+    right: false
   }
   {
     source: nodes[0]
     target: nodes[2]
     left: false
-    right: true
+    right: false
   }
 ]
+
+nom = ["ici","graphes orientés","graphes non orientés"]
+lien = ["index.html","digraphs.html","graphs.html"]
 
 
 # handles to link and node element groups
@@ -93,7 +70,7 @@ tick = ->
   circle.attr 'transform', (d) -> return "translate(#{d.x}, #{d.y})"
 
 # init D3 force layout
-force = d3.layout.force().nodes(nodes).links(links).size([width, height]).linkDistance(150).charge(-500).on('tick', tick)
+force = d3.layout.force().nodes(nodes).links(links).size([width, height]).linkDistance(250).charge(-500).on('tick', tick)
 
 # mouse event vars
 selected_node = null
@@ -136,8 +113,6 @@ restart = ->
         selected_node = null
         restart()
    
-  # remove old links
-  path.exit().remove()
   # circle (node) group
   # NB: the function arg is crucial here! nodes are known by id, not by index!
   circle = circle.data(nodes, (d) -> d.id)
@@ -149,7 +124,7 @@ restart = ->
   g = circle.enter().append('svg:g')
   g.append('svg:circle')
     .attr('class', 'node')
-    .attr('r', 12)
+    .attr('r', 80)
     .style('fill', (d) -> if d == selected_node then d3.rgb(colors(d.id)).brighter().toString() else colors(d.id))
     .style('stroke', (d) -> d3.rgb(colors(d.id)).darker().toString())
     .classed('reflexive', (d) -> d.reflexive)
@@ -176,7 +151,6 @@ restart = ->
       selected_link = null
       # reposition drag line
       drag_line
-        .style('marker-end', 'url(#end-arrow)')
         .classed('hidden', false)
         .attr 'd', "M#{mousedown_node.x}, #{mousedown_node.y}L#{mousedown_node.x}, #{mousedown_node.y}"
       restart()
@@ -190,39 +164,10 @@ restart = ->
       mouseup_node = d
       if mouseup_node == mousedown_node
         resetMouseVars()
+        window.open(lien[parseInt(d.id)])
         return
       # unenlarge target node
       d3.select(this).attr 'transform', ''
-      # add link to graph (update if exists)
-      # NB: links are strictly source < target; arrows separately specified by booleans
-      source = undefined
-      target = undefined
-      direction = undefined
-      if mousedown_node.id < mouseup_node.id
-        source = mousedown_node
-        target = mouseup_node
-        direction = 'right'
-      else
-        source = mouseup_node
-        target = mousedown_node
-        direction = 'left'
-      link = undefined
-      link = links.filter((l) ->
-        l.source == source and l.target == target
-      )[0]
-      if link
-        link[direction] = true
-      else
-        link =
-          source: source
-          target: target
-          left: false
-          right: false
-        link[direction] = true
-        links.push link
-      # select new link
-      selected_link = link
-      selected_node = null
       restart()
       
   # show node IDs
@@ -230,40 +175,9 @@ restart = ->
     .attr('x', 0)
     .attr('y', 4)
     .attr('class', 'id')
-    .text (d) -> d.id
-  # remove old nodes
-  circle.exit().remove()
+    .text (d) -> nom[parseInt(d.id)]
   # set the graph in motion
   force.start()
-  $("#sommets").empty().append "<th>sommets</th>"
-  $("#entrants").empty().append "<th>degrés entrants</th>"
-  $("#sortants").empty().append "<th>degrés sortants</th>"
-  $("#departs").empty()
-  $("#arrivees").empty()
-  for sommet in nodes
-    $("#sommets").append "<td>#{sommet.id}</td>"
-    [e,s] = [0,0]
-    for arete in links
-      if arete.source==sommet and arete.right
-        s += 1
-      if arete.target==sommet and arete.left
-        s += 1
-      if arete.target==sommet and arete.right
-        e += 1
-      if arete.source==sommet and arete.left
-        e += 1
-      if arete.source==sommet and not arete.right and not arete.left
-        e += 1
-        s += 1
-      if arete.target==sommet and not arete.right and not arete.left
-        e += 1
-        s += 1
-    $("#entrants").append "<td>#{e}</td>"
-    $("#sortants").append "<td>#{s}</td>"
-    if s==0
-      $("#arrivees").append "<li>#{sommet.id}</li>"
-    if e==0
-      $("#departs").append "<li>#{sommet.id}</li>"
         
   return
 
@@ -274,14 +188,6 @@ mousedown = ->
   svg.classed 'active', true
   if d3.event.ctrlKey or mousedown_node or mousedown_link
     return
-  # insert new node at point
-  point = d3.mouse(this)
-  node = 
-    id: ++lastNodeId
-    reflexive: false
-  node.x = point[0]
-  node.y = point[1]
-  nodes.push node
   restart()
   return
 
@@ -302,12 +208,6 @@ mouseup = ->
   resetMouseVars()
   return
 
-spliceLinksForNode = (node) ->
-  toSplice = links.filter (l) ->
-    l.source == node or l.target == node
-
-  toSplice.map (l) ->
-    links.splice links.indexOf(l), 1
 
 
 keydown = ->
@@ -321,42 +221,6 @@ keydown = ->
     svg.classed 'ctrl', true
   if !selected_node and !selected_link
     return
-  switch d3.event.keyCode
-    # backspace
-    when 8, 46
-      # delete
-      if selected_node
-        nodes.splice nodes.indexOf(selected_node), 1
-        spliceLinksForNode selected_node
-      else if selected_link
-        links.splice links.indexOf(selected_link), 1
-      selected_link = null
-      selected_node = null
-      restart()
-    when 65
-      # A
-      if selected_link
-        # set link direction to both left and right
-        selected_link.left = false
-        selected_link.right = false
-      restart()
-    when 71
-      # G
-      if selected_link
-        # set link direction to left only
-        selected_link.left = true
-        selected_link.right = false
-      restart()
-    when 68
-      # D
-      if selected_node
-        # toggle node reflexivity
-        selected_node.reflexive = !selected_node.reflexive
-      else if selected_link
-        # set link direction to right only
-        selected_link.left = false
-        selected_link.right = true
-      restart()
   return
 
 keyup = ->
@@ -381,108 +245,9 @@ d3.select(window)
 restart()
 
 
-#Drag an Drop interface
-DnDFileController = (selector, onDropCallback) ->
-  el_ = document.querySelector(selector)
-
-  @dragenter = (e) ->
-    e.stopPropagation()
-    e.preventDefault()
-    el_.classList.add 'dropping'
-    $( "#upload" ).addClass "slim"
-
-  @dragover = (e) ->
-    e.stopPropagation()
-    e.preventDefault()
-
-  @dragleave = (e) ->
-    e.stopPropagation()
-    e.preventDefault()
-    el_.classList.remove 'dropping'
-    $( "#upload" ).removeClass "slim"
-
-  @drop = (e) ->
-    e.stopPropagation()
-    e.preventDefault()
-    el_.classList.remove 'dropping'
-    onDropCallback e.dataTransfer.files, e
-    $( "#upload" ).removeClass( "slim" ).hide()
-
-  el_.addEventListener 'dragenter'  , @dragenter, false
-  el_.addEventListener 'dragover'   , @dragover , false
-  el_.addEventListener 'dragleave'  , @dragleave, false
-  el_.addEventListener 'drop'       , @drop     , false
-##################################################################
-#Drag and Drop file
-dnd = new DnDFileController '#upload', (files) ->
-  f = files[0]
-  reader = new FileReader
-  reader.onloadend = (e) -> 
-    data = JSON.parse(@result)
-    console.log data
-    pathsGroup.remove()
-    circlesGroup.remove()
-    
-    # handles to link and node element groups
-    pathsGroup = svg.append('svg:g')
-    path = pathsGroup.selectAll('path')
-    circlesGroup = svg.append('svg:g')
-    circle = circlesGroup.selectAll('g')
-    lastNodeId = data.lastNodeId
-    nodes = data.nodes
-    links = []
-    for l in data.links
-      t = {}
-      t.source = nodes[l.source.id]
-      t.target = nodes[l.target.id]
-      t.left = l.left
-      t.right = l.right
-      links.push t
-
-    console.log links
-    force = d3.layout.force().nodes(nodes).links(links).size([width, height]).linkDistance(150).charge(-500).on('tick', tick)
-    restart()
-    
-  reader.readAsText f
-  return
-####################################################################
-
-$( "#importJSON" ).on "click", -> $( "#upload" ).show()
-$( "#upload .close" ).on "click", -> $( "#upload" ).hide()
-
-
-
-save = (type) ->
-  dataStr = "data:text/#{type};charset=utf-8,"
-  stringValue = prompt( "Nom du fichier ?", stringValue )
-  switch type
-    when "json" 
-      dataStr += encodeURIComponent(JSON.stringify({nodes: nodes, links: links, lastNodeId: lastNodeId}))
-    when "svg"
-      html = d3.select("#graf974").select("svg")
-        .attr("title", "svg_title")
-        .attr("version", 1.1)
-        .attr("xmlns", "http://www.w3.org/2000/svg")
-        .node().parentNode.innerHTML 
-      svgBlob = new Blob([html], {type:"image/svg+xml;charset=utf-8"})
-      dataStr = URL.createObjectURL(svgBlob);
-      
-  dlAnchorElem = document.getElementById('save')
-  dlAnchorElem.setAttribute("href",     dataStr     )
-  dlAnchorElem.setAttribute("download", "#{stringValue}.#{type}")
-  dlAnchorElem.click()
-
 $ ->
-  console.log nodes,links
-  $( "#genJSON" ).on "click", -> save("json")
-  $( "#genSVG" ).on "click", -> save("svg")
-  
-  $( "#hints, #rules, #defs" ).hide()
+  $( "#hints" ).hide()
   $( "#hintsToggler" ).on "click", ->
     $( "#hints" ).toggle()
-  $( "#rulesToggler" ).on "click", ->
-    $( "#rules" ).toggle()
-  $( "#defsToggler" ).on "click", ->
-    $( "#defs" ).toggle()
     
 
