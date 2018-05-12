@@ -1,7 +1,7 @@
   
 # set up SVG for D3
-width = 960
-height = 500
+width = 800
+height = 480
 colors = d3.scale.category10()
 # define arrow markers for graph links
 svg = d3.select('#graf974').append('svg').attr('oncontextmenu', 'return false;').attr('width', width).attr('height', height)
@@ -119,6 +119,8 @@ links = [
     right: true
   }
 ]
+statut = {}
+statut[i]=7 for i in [0..lastNodeId]
 
 
 # handles to link and node element groups
@@ -147,7 +149,7 @@ tick = ->
   circle.attr 'transform', (d) -> return "translate(#{d.x}, #{d.y})"
 
 # init D3 force layout
-force = d3.layout.force().nodes(nodes).links(links).size([width/2, height/2]).linkDistance(80).charge(-500).on('tick', tick)
+force = d3.layout.force().nodes(nodes).links(links).size([width*0.8, height*0.8]).linkDistance(80).charge(-500).on('tick', tick)
 
 # mouse event vars
 selected_node = null
@@ -162,10 +164,37 @@ resetMouseVars = ->
   mouseup_node = null
   mousedown_link = null
   return
-
-
+spoiler = false
+console.log (colors(n) for n in [0..9])
+sgt = (nodeId) ->
+  if spoiler
+    d3.rgb(colors(statut[nodeId]))
+  else
+    d3.rgb(colors(nodeId))
 # update graph (called when needed)
 restart = ->
+  statut[sommet.id]=7 for sommet in nodes
+  for sommet in nodes
+    e = 0
+    for arete in links
+      e += 1 if arete.source==sommet and arete.right
+      e += 1 if arete.target==sommet and arete.left
+    if e==0
+      statut[sommet.id] = 2 # les arrivées sont gagnantes donc en vert
+  for passage in [0...lastNodeId]
+    for sommet in nodes
+      [e,s] = [0,0]
+      for arete in links
+        s += 1 if arete.source==sommet and arete.right and statut[arete.target.id]==2
+        s += 1 if arete.target==sommet and arete.left and statut[arete.source.id]==2
+        e += 1 if arete.source==sommet and arete.right and statut[arete.target.id]==3
+        e += 1 if arete.target==sommet and arete.left and statut[arete.source.id]==3
+      if s>0 and statut[sommet.id]==7
+        statut[sommet.id] = 3 # sommet perdant, en rouge
+      else
+      if e>0 and statut[sommet.id]==7
+        statut[sommet.id] = 2 # sommet gagnant, en vert
+    
   # path (link) group
   path = path.data(links)
   # update existing links
@@ -197,15 +226,15 @@ restart = ->
   circle = circle.data(nodes, (d) -> d.id)
   # update existing nodes (reflexive & selected visual states)
   circle.selectAll('circle')
-    .style('fill', (d) -> if d == selected_node then d3.rgb(colors(d.id)).brighter().toString() else colors(d.id))
+    .style('fill', (d) -> if d == selected_node then sgt(d.id).brighter().toString() else sgt(d.id))
     .classed 'reflexive', (d) -> d.reflexive
   # add new nodes
   g = circle.enter().append('svg:g')
   g.append('svg:circle')
     .attr('class', 'node')
     .attr('r', 12)
-    .style('fill', (d) -> if d == selected_node then d3.rgb(colors(d.id)).brighter().toString() else colors(d.id))
-    .style('stroke', (d) -> d3.rgb(colors(d.id)).darker().toString())
+    .style('fill', (d) -> if d == selected_node then sgt(d.id).brighter().toString() else sgt(d.id))
+    .style('stroke', (d) -> sgt(d.id).darker().toString())
     .classed('reflexive', (d) -> d.reflexive)
     .on 'mouseover', (d) ->
       return if !mousedown_node or d == mousedown_node    
@@ -321,6 +350,7 @@ restart = ->
     if e==0 and s>0
       $("#departs").append "<li>#{sommet.id}</li>"
       sommet.reflexive = true
+      
         
   return
 
@@ -336,6 +366,7 @@ mousedown = ->
   node = 
     id: ++lastNodeId
     reflexive: false
+  statut[node.id]=7 # couleur grise a priori
   node.x = point[0]
   node.y = point[1]
   nodes.push node
@@ -436,6 +467,10 @@ d3.select(window)
   .on 'keydown', keydown
   .on 'keyup', keyup
 restart()
+
+$("#triche").on "click", ->
+  spoiler = not spoiler
+  restart()
 
 
 #Drag an Drop interface

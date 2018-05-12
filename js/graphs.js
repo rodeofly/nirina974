@@ -3,9 +3,9 @@
 // set up SVG for D3
 var DnDFileController, circle, circlesGroup, colors, couleur, dnd, drag_line, force, height, i, j, keydown, keyup, lastKeyDown, lastNodeId, links, mousedown, mousedown_link, mousedown_node, mousemove, mouseup, mouseup_node, nodes, path, pathsGroup, ref, resetMouseVars, restart, save, selected_link, selected_node, spliceLinksForNode, svg, tick, width;
 
-width = 960;
+width = 800;
 
-height = 500;
+height = 480;
 
 colors = d3.scale.category10();
 
@@ -174,7 +174,7 @@ resetMouseVars = function() {
 
 // update graph (called when needed)
 restart = function() {
-  var arete, g, k, len, len1, m, na, sommet;
+  var arete, c1, c2, enscoul, g, k, len, len1, m, n, na, o, ref1, sommet, v;
   // path (link) group
   path = path.data(links);
   // update existing links
@@ -315,16 +315,23 @@ restart = function() {
   circle.exit().remove();
   // set the graph in motion
   force.start();
+  // calculs sur les degrés et les couleurs
   $("#sommets").empty().append("<th>sommets</th>");
   $("#entrants").empty().append("<th>degrés</th>");
-  for (k = 0, len = nodes.length; k < len; k++) {
-    sommet = nodes[k];
+  $("#conflits").empty();
+  for (m = 0, len = nodes.length; m < len; m++) {
+    sommet = nodes[m];
     $("#sommets").append(`<td>${sommet.id}</td>`);
     na = 0;
-    for (m = 0, len1 = links.length; m < len1; m++) {
-      arete = links[m];
+    c1 = couleur[sommet.id];
+    for (n = 0, len1 = links.length; n < len1; n++) {
+      arete = links[n];
       if (arete.source === sommet) {
         na += 1;
+        c2 = couleur[arete.target.id];
+        if (c1 === c2) {
+          $("#conflits").append(`<li>Les sommets ${sommet.id} et ${arete.target.id} sont de la même couleur</li>`);
+        }
       }
       if (arete.target === sommet) {
         na += 1;
@@ -332,6 +339,19 @@ restart = function() {
     }
     $("#entrants").append(`<td>${na}</td>`);
   }
+  enscoul = {};
+  for (i = o = 0, ref1 = lastNodeId; (0 <= ref1 ? o <= ref1 : o >= ref1); i = 0 <= ref1 ? ++o : --o) {
+    enscoul[couleur[i]] = couleur[i];
+  }
+  $("#chroma1").text(`Le graphe est actuellement colorié en ${((function() {
+    var results;
+    results = [];
+    for (k in enscoul) {
+      v = enscoul[k];
+      results.push(v);
+    }
+    return results;
+  })()).length} couleurs. Peut-on faire moins ?`);
 };
 
 mousedown = function() {
@@ -493,12 +513,13 @@ DnDFileController = function(selector, onDropCallback) {
 
 //#################################################################
 //Drag and Drop file
+// à  factoriser à l'occasion
 dnd = new DnDFileController('#upload', function(files) {
   var f, reader;
   f = files[0];
   reader = new FileReader;
   reader.onloadend = function(e) {
-    var data, k, l, len, ref1, t;
+    var data, l, len, m, ref1, t;
     data = JSON.parse(this.result);
     console.log(data);
     pathsGroup.remove();
@@ -513,8 +534,8 @@ dnd = new DnDFileController('#upload', function(files) {
     nodes = data.nodes;
     links = [];
     ref1 = data.links;
-    for (k = 0, len = ref1.length; k < len; k++) {
-      l = ref1[k];
+    for (m = 0, len = ref1.length; m < len; m++) {
+      l = ref1[m];
       t = {};
       t.source = nodes[l.source.id];
       t.target = nodes[l.target.id];
@@ -523,7 +544,7 @@ dnd = new DnDFileController('#upload', function(files) {
       links.push(t);
     }
     console.log(links);
-    force = d3.layout.force().nodes(nodes).links(links).size([width, height]).linkDistance(150).charge(-500).on('tick', tick);
+    force = d3.layout.force().nodes(nodes).links(links).size([width / 2, height / 2]).linkDistance(80).charge(-200).on('tick', tick);
     return restart();
   };
   reader.readAsText(f);

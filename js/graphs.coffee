@@ -1,7 +1,7 @@
   
 # set up SVG for D3
-width = 960
-height = 500
+width = 800
+height = 480
 colors = d3.scale.category10()
 # define arrow markers for graph links
 svg = d3.select('#graf').append('svg').attr('oncontextmenu', 'return false;').attr('width', width).attr('height', height)
@@ -265,17 +265,26 @@ restart = ->
   circle.exit().remove()
   # set the graph in motion
   force.start()
+  # calculs sur les degrés et les couleurs
   $("#sommets").empty().append "<th>sommets</th>"
   $("#entrants").empty().append "<th>degrés</th>"
+  $("#conflits").empty()
   for sommet in nodes
     $("#sommets").append "<td>#{sommet.id}</td>"
     na = 0
+    c1 = couleur[sommet.id]
     for arete in links
       if arete.source==sommet
         na += 1
+        c2 = couleur[arete.target.id]
+        if c1==c2
+          $("#conflits").append "<li>Les sommets #{sommet.id} et #{arete.target.id} sont de la même couleur</li>"
       if arete.target==sommet
         na += 1
     $("#entrants").append "<td>#{na}</td>"
+  enscoul = {}
+  enscoul[couleur[i]] = couleur[i] for i in [0..lastNodeId]
+  $("#chroma1").text "Le graphe est actuellement colorié en #{(v for k,v of enscoul).length} couleurs. Peut-on faire moins ?"
   return
 
 mousedown = ->
@@ -418,6 +427,7 @@ DnDFileController = (selector, onDropCallback) ->
   el_.addEventListener 'drop'       , @drop     , false
 ##################################################################
 #Drag and Drop file
+# à  factoriser à l'occasion
 dnd = new DnDFileController '#upload', (files) ->
   f = files[0]
   reader = new FileReader
@@ -444,7 +454,7 @@ dnd = new DnDFileController '#upload', (files) ->
       links.push t
 
     console.log links
-    force = d3.layout.force().nodes(nodes).links(links).size([width, height]).linkDistance(150).charge(-500).on('tick', tick)
+    force = d3.layout.force().nodes(nodes).links(links).size([width/2, height/2]).linkDistance(80).charge(-200).on('tick', tick)
     restart()
     
   reader.readAsText f
