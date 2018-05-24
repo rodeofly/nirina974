@@ -187,12 +187,12 @@ restart = ->
       for arete in links
         s += 1 if arete.source==sommet and arete.right and statut[arete.target.id]==2
         s += 1 if arete.target==sommet and arete.left and statut[arete.source.id]==2
-        e += 1 if arete.source==sommet and arete.right and statut[arete.target.id]==3
-        e += 1 if arete.target==sommet and arete.left and statut[arete.source.id]==3
+        e += 1 if arete.source==sommet and arete.right and statut[arete.target.id] in [2,7]
+        e += 1 if arete.target==sommet and arete.left and statut[arete.source.id] in [2,7]
       if s>0 and statut[sommet.id]==7
         statut[sommet.id] = 3 # sommet perdant, en rouge
       else
-      if e>0 and statut[sommet.id]==7
+      if e==0 and statut[sommet.id]==7
         statut[sommet.id] = 2 # sommet gagnant, en vert
     
   # path (link) group
@@ -532,7 +532,7 @@ dnd = new DnDFileController '#upload', (files) ->
       links.push t
 
     console.log links
-    force = d3.layout.force().nodes(nodes).links(links).size([width, height]).linkDistance(150).charge(-500).on('tick', tick)
+    force = d3.layout.force().nodes(nodes).links(links).size([width, height]).linkDistance(80).charge(-500).on('tick', tick)
     restart()
     
   reader.readAsText f

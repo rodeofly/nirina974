@@ -40,7 +40,7 @@ nodes = [
 ]
 lastNodeId = 5
 couleur = []
-couleur[i.toString()]=i for i in [0..lastNodeId]
+couleur[i.toString()]=i for i in [0..10000]
 links = [
   {
     source: nodes[0]

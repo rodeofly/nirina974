@@ -198,7 +198,7 @@ sgt = function(nodeId) {
 
 // update graph (called when needed)
 restart = function() {
-  var arete, e, g, k, len, len1, len2, len3, len4, len5, len6, len7, m, o, p, passage, q, r, ref1, s, sommet, u, v, w;
+  var arete, e, g, k, len, len1, len2, len3, len4, len5, len6, len7, m, o, p, passage, q, r, ref1, ref2, ref3, s, sommet, u, v, w;
   for (k = 0, len = nodes.length; k < len; k++) {
     sommet = nodes[k];
     statut[sommet.id] = 7;
@@ -231,10 +231,10 @@ restart = function() {
         if (arete.target === sommet && arete.left && statut[arete.source.id] === 2) {
           s += 1;
         }
-        if (arete.source === sommet && arete.right && statut[arete.target.id] === 3) {
+        if (arete.source === sommet && arete.right && ((ref2 = statut[arete.target.id]) === 2 || ref2 === 7)) {
           e += 1;
         }
-        if (arete.target === sommet && arete.left && statut[arete.source.id] === 3) {
+        if (arete.target === sommet && arete.left && ((ref3 = statut[arete.source.id]) === 2 || ref3 === 7)) {
           e += 1;
         }
       }
@@ -243,7 +243,7 @@ restart = function() {
       } else {
 
       }
-      if (e > 0 && statut[sommet.id] === 7) {
+      if (e === 0 && statut[sommet.id] === 7) {
         statut[sommet.id] = 2; // sommet gagnant, en vert
       }
     }
@@ -664,7 +664,7 @@ dnd = new DnDFileController('#upload', function(files) {
       links.push(t);
     }
     console.log(links);
-    force = d3.layout.force().nodes(nodes).links(links).size([width, height]).linkDistance(150).charge(-500).on('tick', tick);
+    force = d3.layout.force().nodes(nodes).links(links).size([width, height]).linkDistance(80).charge(-500).on('tick', tick);
     return restart();
   };
   reader.readAsText(f);
