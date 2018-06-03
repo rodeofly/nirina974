@@ -202,9 +202,25 @@ circle.node {
   cursor: pointer;
 }
 
-circle.node.reflexive {
+circle.node.pion {
   stroke: #000 !important;
   stroke-width: 5px;
+  fill : black !important;
+
+}
+
+circle.node.arrivee {
+  stroke: red !important;
+  stroke-width: 10px;
+  r : 20px;
+  fill : white;
+}
+
+circle.node.depart {
+  stroke: green !important;
+  stroke-width: 10px;
+  r : 20px;
+  fill : white;
 }
 
 text {

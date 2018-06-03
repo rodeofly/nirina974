@@ -1,4 +1,4 @@
-  
+premier_appel = false
 # set up SVG for D3
 width = 800
 height = 480
@@ -28,20 +28,26 @@ drag_line = svg.append('svg:path').attr('class', 'link dragline hidden').attr('d
 
 # set up initial nodes and links
 #  - nodes are known by 'id', not by index in array.
-#  - reflexive edges are indicated on the node (as a bold black circle).
+#  - pion edges are indicated on the node (as a bold black circle).
 #  - links are always source < target; edge directions are set by 'left' and 'right'.
 nodes = [
   {
     id: 0
-    reflexive: true # parce que depart
+    pion: false 
+    depart : true
+    arrivee:false # parce que depart
   }
   {
     id: 1
-    reflexive: false
+    pion: false
+    depart : false
+    arrivee: false
   }
   {
     id: 2
-    reflexive: true # parce que arrivee
+    pion: true 
+    depart : false
+    arrivee: true # parce que arrivee
   }
 ]
 lastNodeId = 2
@@ -122,7 +128,7 @@ sgt = (nodeId) ->
     d3.rgb(colors(nodeId))
 # update graph (called when needed)
 restart = ->
-  statut[sommet.id]=7 for sommet in nodes
+  statut[sommet.id] =7 for sommet in nodes
   for sommet in nodes
     e = 0
     for arete in links
@@ -158,7 +164,7 @@ restart = ->
     .style 'marker-start', (d) -> if d.left then 'url(#start-arrow)' else ''
     .style 'marker-end', (d) -> if d.right then 'url(#end-arrow)' else ''
     .on 'mousedown', (d) -> 
-      if d3.event.ctrlKey   or jeu 
+      if d3.event.ctrlKey or jeu 
         # select link
         mousedown_link = d
         if mousedown_link == selected_link
@@ -173,22 +179,85 @@ restart = ->
           else
             origine=selected_link.target
             destination=selected_link.source
-          if origine.reflexive # le pion est ici
-            destination.reflexive=true
-            origine.reflexive=false # on bouge le pion
+          if origine.pion # le pion est ici
+            destination.pion=true
+            origine.pion=false # on bouge le pion
             joueur=autre[joueur]
             $(".joueurId").text joueur
-        restart()
+      restart()
+  
+  
+  
    
   # remove old links
   path.exit().remove()
+  
+  
+  $("#sommets").empty().append "<th>sommets</th>"
+  $("#entrants").empty().append "<th>degrés entrants</th>"
+  $("#sortants").empty().append "<th>degrés sortants</th>"
+  $("#departs").empty()
+  $("#arrivees").empty()
+
+  for sommet in nodes     
+    sommet.pion = false unless jeu   
+    sommet.arrivee = false
+    sommet.depart = false
+  for sommet in nodes
+    $("#sommets").append "<td>#{sommet.id}</td>"
+    [e,s] = [0,0]
+    for arete in links
+      if arete.source==sommet and arete.right
+        s += 1
+      if arete.target==sommet and arete.left
+        s += 1
+      if arete.target==sommet and arete.right
+        e += 1
+      if arete.source==sommet and arete.left
+        e += 1
+      if arete.source==sommet and not arete.right and not arete.left
+        e += 1
+        s += 1
+      if arete.target==sommet and not arete.right and not arete.left
+        e += 1
+        s += 1
+    $("#entrants").append "<td>#{e}</td>"
+    $("#sortants").append "<td>#{s}</td>"
+    if s==0 and e>0
+      $("#arrivees").append "<li>#{sommet.id}</li>"
+      sommet.arrivee = true    
+    if e==0 and s>0
+      sommet.depart = true
+      if premier_appel
+        sommet.pion = true
+        premier_appel = false
+      $("#departs").append "<li>#{sommet.id}</li>"
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   # circle (node) group
   # NB: the function arg is crucial here! nodes are known by id, not by index!
-  circle = circle.data(nodes, (d) -> d.id)
-  # update existing nodes (reflexive & selected visual states)
+  circle = circle.data(nodes, (d) -> d.id)  
+  # update existing nodes (pion & selected visual states)
   circle.selectAll('circle')
     .style('fill', (d) -> if d == selected_node then sgt(d.id).brighter().toString() else sgt(d.id))
-    .classed 'reflexive', (d) -> d.reflexive
+    .classed 'pion', (d) -> d.pion
+    .classed 'arrivee', (d) -> d.arrivee
+    .classed 'depart', (d) -> d.depart
+  
   # add new nodes
   g = circle.enter().append('svg:g')
   g.append('svg:circle')
@@ -196,7 +265,10 @@ restart = ->
     .attr('r', 12)
     .style('fill', (d) -> if d == selected_node then sgt(d.id).brighter().toString() else sgt(d.id))
     .style('stroke', (d) -> sgt(d.id).darker().toString())
-    .classed('reflexive', (d) -> d.reflexive)
+    .classed 'pion', (d) -> d.pion
+    .classed 'arrivee', (d) -> d.arrivee
+    .classed 'depart', (d) -> d.depart
+    
     .on 'mouseover', (d) ->
       return if !mousedown_node or d == mousedown_node    
       # enlarge target node
@@ -275,47 +347,14 @@ restart = ->
     .attr('y', 4)
     .attr('class', 'id')
     .text (d) -> d.id
+      
+        
+        
   # remove old nodes
   circle.exit().remove()
   # set the graph in motion
   force.start()
-  $("#sommets").empty().append "<th>sommets</th>"
-  $("#entrants").empty().append "<th>degrés entrants</th>"
-  $("#sortants").empty().append "<th>degrés sortants</th>"
-  $("#departs").empty()
-  $("#arrivees").empty()
-  unless jeu
-    sommet.reflexive = false for sommet in nodes
-  for sommet in nodes
-    $("#sommets").append "<td>#{sommet.id}</td>"
-    [e,s] = [0,0]
-    for arete in links
-      if arete.source==sommet and arete.right
-        s += 1
-      if arete.target==sommet and arete.left
-        s += 1
-      if arete.target==sommet and arete.right
-        e += 1
-      if arete.source==sommet and arete.left
-        e += 1
-      if arete.source==sommet and not arete.right and not arete.left
-        e += 1
-        s += 1
-      if arete.target==sommet and not arete.right and not arete.left
-        e += 1
-        s += 1
-    $("#entrants").append "<td>#{e}</td>"
-    $("#sortants").append "<td>#{s}</td>"
-    if s==0 and e>0
-      $("#arrivees").append "<li>#{sommet.id}</li>"
-      unless jeu
-        sommet.reflexive = true
-    if e==0 and s>0
-      $("#departs").append "<li>#{sommet.id}</li>"
-      unless jeu
-        sommet.reflexive = true
-      
-        
+  
   return
 
 mousedown = ->
@@ -329,7 +368,9 @@ mousedown = ->
   point = d3.mouse(this)
   node = 
     id: ++lastNodeId
-    reflexive: false
+    pion: false
+    depart:false
+    arrivee:false
   statut[node.id]=7 # couleur grise a priori
   node.x = point[0]
   node.y = point[1]
@@ -404,7 +445,7 @@ keydown = ->
         # D
         if selected_node
           # toggle node reflexivity
-          selected_node.reflexive = !selected_node.reflexive
+          selected_node.pion = !selected_node.pion
         else if selected_link
           # set link direction to right only
           selected_link.left = false
@@ -439,6 +480,7 @@ $("#triche").on "click", ->
 
 $("#jeu").on "click",->
   jeu = not jeu
+  premier_appel = jeu 
   $(".unique").toggle()
   if jeu
     $("#jeu").text "Créer"
