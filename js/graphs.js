@@ -178,11 +178,11 @@
     // path (link) group
     path = path.data(links);
     // update existing links
-    path.classed('selected', function(d) {
+    path.style('stroke', "black").style('fill', "black").style('stroke-width', '4px').classed('selected', function(d) {
       return d === selected_link;
     });
     // add new links
-    path.enter().append('svg:path').attr('class', 'link').classed('selected', function(d) {
+    path.enter().append('svg:path').attr('class', 'link').style('stroke', "black").style('fill', "black").style('stroke-width', '4px').classed('selected', function(d) {
       return d === selected_link;
     }).on('mousedown', function(d) {
       if (d3.event.ctrlKey) {

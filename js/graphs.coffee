@@ -154,10 +154,16 @@ restart = ->
   path = path.data(links)
   # update existing links
   path
+    .style('stroke', "black" )
+    .style('fill', "black" )
+    .style('stroke-width', '4px')
     .classed 'selected', (d) -> d == selected_link
   # add new links
   path.enter().append('svg:path')
     .attr('class', 'link')
+    .style('stroke', "black" )
+    .style('fill', "black" )
+    .style('stroke-width', '4px')
     .classed 'selected', (d) -> d == selected_link
     .on 'mousedown', (d) -> 
       if d3.event.ctrlKey    

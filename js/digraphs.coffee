@@ -154,12 +154,18 @@ restart = ->
   path = path.data(links)
   # update existing links
   path
+    .style('stroke', "black" )
+    .style('fill', "black" )
+    .style('stroke-width', '4px')
     .classed 'selected', (d) -> d == selected_link
     .style   'marker-start', (d) -> if d.left  then 'url(#start-arrow)' else ''
     .style   'marker-end'  , (d) -> if d.right then 'url(#end-arrow)'   else ''
   # add new links
   path.enter().append('svg:path')
     .attr('class', 'link')
+    .style('stroke', "black" )
+    .style('fill', "black" )
+    .style('stroke-width', '4px')
     .classed 'selected', (d) -> d == selected_link
     .style 'marker-start', (d) -> if d.left then 'url(#start-arrow)' else ''
     .style 'marker-end', (d) -> if d.right then 'url(#end-arrow)' else ''
