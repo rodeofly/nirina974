@@ -177,14 +177,17 @@ restart = ->
   circle = circle.data(nodes, (d) -> d.id)
   # update existing nodes (reflexive & selected visual states)
   circle.selectAll('circle')
-    .style('fill', (d) -> if d == selected_node then d3.rgb(colors(couleur[d.id])).brighter().toString() else colors(couleur[d.id]))
+    .classed 'selected', (d) -> d == selected_node
+    .style('fill', (d) -> colors(couleur[d.id]))
     .classed 'reflexive', (d) -> d.reflexive
   # add new nodes
   g = circle.enter().append('svg:g')
   g.append('svg:circle')
     .attr('class', 'node')
     .attr('r', 12)
-    .style('fill', (d) -> if d == selected_node then d3.rgb(colors(couleur[d.id])).brighter().toString() else colors(couleur[d.id]))
+    .classed 'selected', (d) -> d == selected_node
+    #.style('fill', (d) -> if d == selected_node then d3.rgb(colors(couleur[d.id])).brighter().toString() else colors(couleur[d.id]))
+    .style('fill', (d) -> colors(couleur[d.id]))
     .style('stroke', (d) -> d3.rgb(colors(couleur[d.id])).darker().toString())
     .classed('reflexive', (d) -> d.reflexive)
     .on 'mouseover', (d) ->

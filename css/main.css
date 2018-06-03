@@ -223,6 +223,12 @@ circle.node.depart {
   fill : white;
 }
 
+circle.node.selected {
+  stroke: black !important;
+  stroke-width: 5px;
+  r : 20px;
+}
+
 text {
   font: 12px sans-serif;
   pointer-events: none;

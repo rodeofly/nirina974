@@ -207,23 +207,20 @@
       return d.id;
     });
     // update existing nodes (reflexive & selected visual states)
-    circle.selectAll('circle').style('fill', function(d) {
-      if (d === selected_node) {
-        return d3.rgb(colors(couleur[d.id])).brighter().toString();
-      } else {
-        return colors(couleur[d.id]);
-      }
+    circle.selectAll('circle').classed('selected', function(d) {
+      return d === selected_node;
+    }).style('fill', function(d) {
+      return colors(couleur[d.id]);
     }).classed('reflexive', function(d) {
       return d.reflexive;
     });
     // add new nodes
     g = circle.enter().append('svg:g');
-    g.append('svg:circle').attr('class', 'node').attr('r', 12).style('fill', function(d) {
-      if (d === selected_node) {
-        return d3.rgb(colors(couleur[d.id])).brighter().toString();
-      } else {
-        return colors(couleur[d.id]);
-      }
+    g.append('svg:circle').attr('class', 'node').attr('r', 12).classed('selected', function(d) {
+      return d === selected_node;
+    //.style('fill', (d) -> if d == selected_node then d3.rgb(colors(couleur[d.id])).brighter().toString() else colors(couleur[d.id]))
+    }).style('fill', function(d) {
+      return colors(couleur[d.id]);
     }).style('stroke', function(d) {
       return d3.rgb(colors(couleur[d.id])).darker().toString();
     }).classed('reflexive', function(d) {
