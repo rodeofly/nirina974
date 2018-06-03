@@ -41,38 +41,14 @@ nodes = [
   }
   {
     id: 2
-    reflexive: false
-  }
-  {
-    id: 3
     reflexive: true # parce que arrivee
   }
-  {
-    id: 4
-    reflexive: false
-  }
-  {
-    id: 5
-    reflexive: false
-  }
 ]
-lastNodeId = 5
+lastNodeId = 2
 links = [
   {
     source: nodes[0]
     target: nodes[1]
-    left: false
-    right: true
-  }
-  {
-    source: nodes[0]
-    target: nodes[4]
-    left: false
-    right: true
-  }
-  {
-    source: nodes[0]
-    target: nodes[5]
     left: false
     right: true
   }
@@ -83,45 +59,16 @@ links = [
     right: true
   }
   {
-    source: nodes[2]
-    target: nodes[3]
-    left: false
-    right: true
-  }
-  {
-    source: nodes[4]
-    target: nodes[3]
-    left: false
-    right: true
-  }
-  {
-    source: nodes[4]
-    target: nodes[5]
-    left: false
-    right: true
-  }
-  {
-    source: nodes[5]
-    target: nodes[1]
-    left: false
-    right: true
-  }
-  {
-    source: nodes[5]
+    source: nodes[0]
     target: nodes[2]
-    left: false
-    right: true
-  }
-  {
-    source: nodes[5]
-    target: nodes[3]
     left: false
     right: true
   }
 ]
 statut = {}
 statut[i]=7 for i in [0..lastNodeId]
-
+autre={"A": "B", "B": "A"}
+joueur="A"
 
 # handles to link and node element groups
 pathsGroup = svg.append('svg:g')
@@ -165,7 +112,9 @@ resetMouseVars = ->
   mousedown_link = null
   return
 spoiler = false
-console.log (colors(n) for n in [0..9])
+# en mode spoiler l'algo sgt est utilisé pour colorier
+jeu = false
+# mode jeu ou mode édition
 sgt = (nodeId) ->
   if spoiler
     d3.rgb(colors(statut[nodeId]))
@@ -187,12 +136,12 @@ restart = ->
       for arete in links
         s += 1 if arete.source==sommet and arete.right and statut[arete.target.id]==2
         s += 1 if arete.target==sommet and arete.left and statut[arete.source.id]==2
-        e += 1 if arete.source==sommet and arete.right and statut[arete.target.id]==3
-        e += 1 if arete.target==sommet and arete.left and statut[arete.source.id]==3
+        e += 1 if arete.source==sommet and arete.right and statut[arete.target.id] in [2,7]
+        e += 1 if arete.target==sommet and arete.left and statut[arete.source.id] in [2,7]
       if s>0 and statut[sommet.id]==7
         statut[sommet.id] = 3 # sommet perdant, en rouge
       else
-      if e>0 and statut[sommet.id]==7
+      if e==0 and statut[sommet.id]==7
         statut[sommet.id] = 2 # sommet gagnant, en vert
     
   # path (link) group
@@ -209,7 +158,7 @@ restart = ->
     .style 'marker-start', (d) -> if d.left then 'url(#start-arrow)' else ''
     .style 'marker-end', (d) -> if d.right then 'url(#end-arrow)' else ''
     .on 'mousedown', (d) -> 
-      if d3.event.ctrlKey    
+      if d3.event.ctrlKey   or jeu 
         # select link
         mousedown_link = d
         if mousedown_link == selected_link
@@ -217,6 +166,18 @@ restart = ->
         else
           selected_link = mousedown_link
         selected_node = null
+        if jeu
+          if selected_link.right
+            origine=selected_link.source
+            destination=selected_link.target
+          else
+            origine=selected_link.target
+            destination=selected_link.source
+          if origine.reflexive # le pion est ici
+            destination.reflexive=true
+            origine.reflexive=false # on bouge le pion
+            joueur=autre[joueur]
+            $(".joueurId").text joueur
         restart()
    
   # remove old links
@@ -249,7 +210,7 @@ restart = ->
       return
 
     .on 'mousedown', (d) ->
-      return if d3.event.ctrlKey     
+      return if d3.event.ctrlKey    or jeu 
       # select node
       mousedown_node = d
       if mousedown_node == selected_node
@@ -323,7 +284,8 @@ restart = ->
   $("#sortants").empty().append "<th>degrés sortants</th>"
   $("#departs").empty()
   $("#arrivees").empty()
-  sommet.reflexive = false for sommet in nodes
+  unless jeu
+    sommet.reflexive = false for sommet in nodes
   for sommet in nodes
     $("#sommets").append "<td>#{sommet.id}</td>"
     [e,s] = [0,0]
@@ -346,10 +308,12 @@ restart = ->
     $("#sortants").append "<td>#{s}</td>"
     if s==0 and e>0
       $("#arrivees").append "<li>#{sommet.id}</li>"
-      sommet.reflexive = true
+      unless jeu
+        sommet.reflexive = true
     if e==0 and s>0
       $("#departs").append "<li>#{sommet.id}</li>"
-      sommet.reflexive = true
+      unless jeu
+        sommet.reflexive = true
       
         
   return
@@ -359,7 +323,7 @@ mousedown = ->
   #d3.event.preventDefault();
   # because :active only works in WebKit?
   svg.classed 'active', true
-  if d3.event.ctrlKey or mousedown_node or mousedown_link
+  if d3.event.ctrlKey or mousedown_node or mousedown_link or jeu
     return
   # insert new node at point
   point = d3.mouse(this)
@@ -409,42 +373,43 @@ keydown = ->
     svg.classed 'ctrl', true
   if !selected_node and !selected_link
     return
-  switch d3.event.keyCode
-    # backspace
-    when 8, 46
-      # delete
-      if selected_node
-        nodes.splice nodes.indexOf(selected_node), 1
-        spliceLinksForNode selected_node
-      else if selected_link
-        links.splice links.indexOf(selected_link), 1
-      selected_link = null
-      selected_node = null
-      restart()
-    when 65
-      # A
-      if selected_link
-        # set link direction to both left and right
-        selected_link.left = false
-        selected_link.right = false
-      restart()
-    when 71
-      # G
-      if selected_link
-        # set link direction to left only
-        selected_link.left = true
-        selected_link.right = false
-      restart()
-    when 68
-      # D
-      if selected_node
-        # toggle node reflexivity
-        selected_node.reflexive = !selected_node.reflexive
-      else if selected_link
-        # set link direction to right only
-        selected_link.left = false
-        selected_link.right = true
-      restart()
+   unless jeu
+     switch d3.event.keyCode
+      # backspace
+      when 8, 46
+        # delete
+        if selected_node
+          nodes.splice nodes.indexOf(selected_node), 1
+          spliceLinksForNode selected_node
+        else if selected_link
+          links.splice links.indexOf(selected_link), 1
+        selected_link = null
+        selected_node = null
+        restart()
+      when 65
+        # A
+        if selected_link
+          # set link direction to both left and right
+          selected_link.left = false
+          selected_link.right = false
+        restart()
+      when 71
+        # G
+        if selected_link
+          # set link direction to left only
+          selected_link.left = true
+          selected_link.right = false
+        restart()
+      when 68
+        # D
+        if selected_node
+          # toggle node reflexivity
+          selected_node.reflexive = !selected_node.reflexive
+        else if selected_link
+          # set link direction to right only
+          selected_link.left = false
+          selected_link.right = true
+        restart()
   return
 
 keyup = ->
@@ -472,6 +437,15 @@ $("#triche").on "click", ->
   spoiler = not spoiler
   restart()
 
+$("#jeu").on "click",->
+  jeu = not jeu
+  $(".unique").toggle()
+  if jeu
+    $("#jeu").text "Créer"
+    joueur="A"
+  else
+    $("#jeu").text "Jouer"
+  restart() 
 
 #Drag an Drop interface
 DnDFileController = (selector, onDropCallback) ->
@@ -532,7 +506,7 @@ dnd = new DnDFileController '#upload', (files) ->
       links.push t
 
     console.log links
-    force = d3.layout.force().nodes(nodes).links(links).size([width, height]).linkDistance(150).charge(-500).on('tick', tick)
+    force = d3.layout.force().nodes(nodes).links(links).size([width, height]).linkDistance(80).charge(-500).on('tick', tick)
     restart()
     
   reader.readAsText f
