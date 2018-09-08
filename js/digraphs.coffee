@@ -198,8 +198,8 @@ restart = ->
   # remove old links
   path.exit().remove()
   
-  
-  $("#sommets").empty().append "<th>sommets</th>"
+  $("#matrAdj").empty().append '<tr id="sommets2"></tr>'
+  $("#sommets, #sommets2").empty().append "<th>sommets</th>"
   $("#entrants").empty().append "<th>degrés entrants</th>"
   $("#sortants").empty().append "<th>degrés sortants</th>"
   $("#departs").empty()
@@ -211,6 +211,10 @@ restart = ->
     sommet.depart = false
   for sommet in nodes
     $("#sommets").append "<td>#{sommet.id}</td>"
+    $("#sommets2").append "<th>#{sommet.id}</th>"
+    $("#matrAdj").append "<tr id='sa#{sommet.id}'><th>#{sommet.id}</th></tr>"
+    for sommet2 in nodes
+      $("#sa#{sommet.id}").append "<td>0</td>"
     [e,s] = [0,0]
     for arete in links
       if arete.source==sommet and arete.right
@@ -229,6 +233,7 @@ restart = ->
         s += 1
     $("#entrants").append "<td>#{e}</td>"
     $("#sortants").append "<td>#{s}</td>"
+
     if s==0 and e>0
       $("#arrivees").append "<li>#{sommet.id}</li>"
       sommet.arrivee = true    
@@ -239,6 +244,18 @@ restart = ->
         premier_appel = false
       $("#departs").append "<li>#{sommet.id}</li>"
   
+  for x in [0...nodes.length]
+    for y in [0...nodes.length]
+      cell = $("table#matrAdj tr:nth-child(#{x+2}) td:nth-child(#{y+2})")
+      for arete in links
+        if arete.right and arete.source==nodes[x] and arete.target==nodes[y]
+          cell.text 1
+        if arete.left and arete.source==nodes[y] and arete.target==nodes[x]
+          cell.text 1
+        if not arete.left and not arete.right and arete.source==nodes[y] and arete.target==nodes[x]
+          cell.text 1
+        if not arete.left and not arete.right and arete.source==nodes[x] and arete.target==nodes[y]
+          cell.text 1
   
   
   
@@ -591,12 +608,14 @@ $ ->
   $( "#genJSON" ).on "click", -> save("json")
   $( "#genSVG" ).on "click", -> save("svg")
   
-  $( "#hints, #rules, #defs" ).hide()
+  $( "#hints, #rules, #defs, #matrice2" ).hide()
   $( "#hintsToggler" ).on "click", ->
     $( "#hints" ).toggle()
   $( "#rulesToggler" ).on "click", ->
     $( "#rules" ).toggle()
   $( "#defsToggler" ).on "click", ->
     $( "#defs" ).toggle()
-    
+  $( "#matriceToggler" ).on "click", ->
+    $( "#matrice2" ).toggle()
+   
 

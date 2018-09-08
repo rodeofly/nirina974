@@ -275,11 +275,16 @@ restart = ->
   # set the graph in motion
   force.start()
   # calculs sur les degrés et les couleurs
-  $("#sommets").empty().append "<th>sommets</th>"
+  $("#matrAdj").empty().append '<tr id="sommets2"></tr>'
+  $("#sommets, #sommets2").empty().append "<th>sommets</th>"
   $("#entrants").empty().append "<th>degrés</th>"
   $("#conflits").empty()
   for sommet in nodes
     $("#sommets").append "<td>#{sommet.id}</td>"
+    $("#sommets2").append "<th>#{sommet.id}</th>"
+    $("#matrAdj").append "<tr id='sa#{sommet.id}'><th>#{sommet.id}</th></tr>"
+    for sommet2 in nodes
+      $("#sa#{sommet.id}").append "<td>0</td>"
     na = 0
     c1 = couleur[sommet.id]
     for arete in links
@@ -294,6 +299,14 @@ restart = ->
   enscoul = {}
   enscoul[couleur[i]] = couleur[i] for i in [0..lastNodeId]
   $("#chroma1").text "Le graphe est actuellement colorié en #{(v for k,v of enscoul).length} couleurs. Peut-on faire moins ?"
+  for x in [0...nodes.length]
+    for y in [0...nodes.length]
+      cell = $("table#matrAdj tr:nth-child(#{x+2}) td:nth-child(#{y+2})")
+      for arete in links
+        if arete.source==nodes[x] and arete.target==nodes[y]
+          cell.text 1
+        if arete.source==nodes[y] and arete.target==nodes[x]
+          cell.text 1
   return
 
 mousedown = ->
@@ -500,12 +513,14 @@ $ ->
   $( "#genJSON" ).on "click", -> save("json")
   $( "#genSVG" ).on "click", -> save("svg")
   
-  $( "#hints, #rules, #defs" ).hide()
+  $( "#hints, #rules, #defs, #matrice2" ).hide()
   $( "#hintsToggler" ).on "click", ->
     $( "#hints" ).toggle()
   $( "#rulesToggler" ).on "click", ->
     $( "#rules" ).toggle()
   $( "#defsToggler" ).on "click", ->
     $( "#defs" ).toggle()
+  $( "#matriceToggler" ).on "click", ->
+    $( "#matrice2" ).toggle()
     
 
