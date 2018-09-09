@@ -1,8 +1,19 @@
-  
+premier_appel = false
 # set up SVG for D3
 width = 800
 height = 480
 colors = d3.scale.category10()
+jeu = false
+modeJeu = "Col"
+coulJeu = (nodeId) ->
+  if jeu
+    if statut[nodeId]==2
+      "white"
+    else
+      d3.rgb(colors(statut[nodeId]))
+  else
+    d3.rgb(colors(couleur[nodeId]))
+
 # define arrow markers for graph links
 svg = d3.select('#graf').append('svg').attr('oncontextmenu', 'return false;').attr('width', width).attr('height', height)
 # line displayed when dragging new nodes
@@ -103,7 +114,24 @@ links = [
     right: false
   }
 ]
-
+statut = {}
+statut[i]=2 for i in [0..lastNodeId]
+autre={"Bleu": "Rouge", "Rouge": "Bleu"}
+couleurJ={"Bleu": 0, "Rouge": 3}
+joueur = "Bleu"
+voisins = (sommet) ->
+  vois = []
+  for arete in links
+    if arete.source == sommet
+      vois.push statut[arete.target.id]
+    if arete.target == sommet
+      vois.push statut[arete.source.id]
+  vois
+jouable = (sommet) ->
+  if modeJeu == "Col"
+    couleurJ[joueur] not in voisins(sommet)
+  if modeJeu == "Snort"
+    couleurJ[autre[joueur]] not in voisins(sommet)
 
 # handles to link and node element groups
 pathsGroup = svg.append('svg:g')
@@ -147,7 +175,6 @@ resetMouseVars = ->
   mousedown_link = null
   return
 
-
 # update graph (called when needed)
 restart = ->
   # path (link) group
@@ -184,7 +211,7 @@ restart = ->
   # update existing nodes (reflexive & selected visual states)
   circle.selectAll('circle')
     .classed 'selected', (d) -> d == selected_node
-    .style('fill', (d) -> colors(couleur[d.id]))
+    .style('fill', (d) -> coulJeu(d.id))
     .classed 'reflexive', (d) -> d.reflexive
   # add new nodes
   g = circle.enter().append('svg:g')
@@ -193,7 +220,7 @@ restart = ->
     .attr('r', 12)
     .classed 'selected', (d) -> d == selected_node
     #.style('fill', (d) -> if d == selected_node then d3.rgb(colors(couleur[d.id])).brighter().toString() else colors(couleur[d.id]))
-    .style('fill', (d) -> colors(couleur[d.id]))
+    .style('fill', (d) -> coulJeu(d.id))
     .style('stroke', (d) -> d3.rgb(colors(couleur[d.id])).darker().toString())
     .classed('reflexive', (d) -> d.reflexive)
     .on 'mouseover', (d) ->
@@ -222,6 +249,12 @@ restart = ->
         .classed('hidden', false)
         .attr 'd', "M#{mousedown_node.x}, #{mousedown_node.y}L#{mousedown_node.x}, #{mousedown_node.y}"
       restart()
+      if jeu
+        if jouable(selected_node) or modeJeu=="Col"
+          statut[selected_node.id] = couleurJ[joueur]
+          joueur=autre[joueur]
+          $(".joueur").text joueur
+          restart()
       return
 
    .on 'mouseup', (d) ->
@@ -291,14 +324,17 @@ restart = ->
       if arete.source==sommet
         na += 1
         c2 = couleur[arete.target.id]
-        if c1==c2
+        if c1==c2 and not jeu
           $("#conflits").append "<li>Les sommets #{sommet.id} et #{arete.target.id} sont de la même couleur</li>"
       if arete.target==sommet
         na += 1
     $("#entrants").append "<td>#{na}</td>"
   enscoul = {}
   enscoul[couleur[i]] = couleur[i] for i in [0..lastNodeId]
-  $("#chroma1").text "Le graphe est actuellement colorié en #{(v for k,v of enscoul).length} couleurs. Peut-on faire moins ?"
+  if jeu
+    $("#chroma1").text ""
+  else
+    $("#chroma1").text "Le graphe est actuellement colorié en #{(v for k,v of enscoul).length} couleurs. Peut-on faire moins ?"
   for x in [0...nodes.length]
     for y in [0...nodes.length]
       cell = $("table#matrAdj tr:nth-child(#{x+2}) td:nth-child(#{y+2})")
@@ -314,7 +350,7 @@ mousedown = ->
   #d3.event.preventDefault();
   # because :active only works in WebKit?
   svg.classed 'active', true
-  if d3.event.ctrlKey or mousedown_node or mousedown_link
+  if d3.event.ctrlKey or mousedown_node or mousedown_link or jeu
     return
   # insert new node at point
   point = d3.mouse(this)
@@ -329,7 +365,7 @@ mousedown = ->
   return
 
 mousemove = ->
-  return if !mousedown_node
+  return if !mousedown_node or jeu
   # update drag line
   drag_line.attr 'd', "M#{mousedown_node.x}, #{mousedown_node.y}L#{d3.mouse(this)[0]}, #{d3.mouse(this)[1]}"
   restart()
@@ -368,17 +404,17 @@ keydown = ->
     # backspace
     when 8, 46
       # delete
-      if selected_node
+      if selected_node and not jeu
         nodes.splice nodes.indexOf(selected_node), 1
         spliceLinksForNode selected_node
-      else if selected_link
+      else if selected_link and not jeu
         links.splice links.indexOf(selected_link), 1
       selected_link = null
       selected_node = null
       restart()
       # M pour moins (diminuer couleur)
     when 77, 109
-      if selected_node
+      if selected_node and not jeu
         index = selected_node.id
         couleur[index] -= 1
         if couleur[index]<0
@@ -386,7 +422,7 @@ keydown = ->
       restart()
       # P pour plus (augmenter couleur)
     when 80, 112
-      if selected_node
+      if selected_node and not jeu
         index = selected_node.id
         couleur[index] += 1
         if couleur[index]>9
@@ -522,5 +558,24 @@ $ ->
     $( "#defs" ).toggle()
   $( "#matriceToggler" ).on "click", ->
     $( "#matrice2" ).toggle()
+  $( "#bCol" ).on "click", ->
+    jeu = not jeu
+    $(".unique").toggle()
+    modeJeu = "Col"
+    joueur = "Bleu"
+    if jeu
+      statut = {}
+      statut[i]=2 for i in [0..lastNodeId]
+    restart()
+  $( "#bSnort" ).on "click", ->
+    jeu = not jeu
+    $(".unique").toggle()
+    modeJeu = "Snort"
+    joueur = "Bleu"
+    if jeu
+      statut = {}
+      statut[i]=2 for i in [0..lastNodeId]
+    restart()
+
     
 
