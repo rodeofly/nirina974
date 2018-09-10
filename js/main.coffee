@@ -246,8 +246,10 @@ restart()
 
 
 $ ->
-  $( "#hints" ).hide()
+  $( "#hints, #tube" ).hide()
   $( "#hintsToggler" ).on "click", ->
     $( "#hints" ).toggle()
+  $( "#tubeToggler" ).on "click", ->
+    $( "#tube" ).toggle()
     
 

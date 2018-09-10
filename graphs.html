@@ -39,11 +39,15 @@
                 <article>
                     <header>
                         <h1>Graphes non orientés</h1>
+                        <h3 class="unique" style="display:none;">C'est au joueur <span class="joueur">Bleu</span> de jouer.</h3>
                         <p></p>
                     </header>
                     <section>
-                        <h2>L'éditeur</h2>
-                        <button id="genSVG">→SVG</button><button id="genJSON">Garder le graphe</button><button id="importJSON">Récupérer un graphe</button>
+                        <button id="genSVG">→SVG</button>
+                        <button id="genJSON">Garder le graphe</button>
+                        <button id="importJSON">Récupérer un graphe</button>
+                        <button id="bCol">Col</button>
+                        <button id="bSnort">Snort</button>
  <div id="upload" style="display:none;"><div class="close"></div>Glisser un graphe json</div>
         <input type="file" style="display:none" id="file_upload" />
 <a id="save" href="" download=""></a>
@@ -91,6 +95,15 @@
                     <p>Un conflit est formé de deux sommets adjacents et de la même couleur.</p>
                     <ul id="conflits"></ul>
                     <p id="chroma1"></p>
+                </aside>
+                <aside>
+<h3><span id="matriceToggler">Matrice</span> d'adjacence</h3>
+<div id="matrice2">
+    <table border=1 id="matrAdj">
+    <tr id="sommets2"><th>⟶</th></tr>
+</table>
+
+</div>
                 </aside>
 
             </div> <!-- #main -->
