@@ -27,26 +27,32 @@ nodes = [
   {
     id: 0
     reflexive: false
+    weight: 3
   }
   {
     id: 1
     reflexive: false
+    weight: 3
   }
   {
     id: 2
     reflexive: false
+    weight: 3
   }
   {
     id: 3
     reflexive: false
+    weight: 3
   }
   {
     id: 4
     reflexive: false
+    weight: 3
   }
   {
     id: 5
     reflexive: false
+    weight: 5
   }
 ]
 lastNodeId = 5
@@ -148,8 +154,8 @@ tick = ->
     dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY)
     normX = deltaX / dist
     normY = deltaY / dist
-    sourcePadding = 12
-    targetPadding = 12
+    sourcePadding = 6
+    targetPadding = 6
     sourceX = d.source.x + sourcePadding * normX
     sourceY = d.source.y + sourcePadding * normY
     targetX = d.target.x - (targetPadding * normX)
@@ -212,15 +218,17 @@ restart = ->
   circle.selectAll('circle')
     .classed 'selected', (d) -> d == selected_node
     .style('fill', (d) -> coulJeu(d.id))
+    .attr('r', (d) -> 6+2*d.weight)
     .classed 'reflexive', (d) -> d.reflexive
   # add new nodes
   g = circle.enter().append('svg:g')
   g.append('svg:circle')
     .attr('class', 'node')
-    .attr('r', 12)
+    .attr('r', (d) -> 6+2*d.weight)
     .classed 'selected', (d) -> d == selected_node
     #.style('fill', (d) -> if d == selected_node then d3.rgb(colors(couleur[d.id])).brighter().toString() else colors(couleur[d.id]))
     .style('fill', (d) -> coulJeu(d.id))
+#    .style('stroke-width', (d) -> (d.weight)+'px')
     .style('stroke', (d) -> d3.rgb(colors(couleur[d.id])).darker().toString())
     .classed('reflexive', (d) -> d.reflexive)
     .on 'mouseover', (d) ->
@@ -292,6 +300,8 @@ restart = ->
           left: false
           right: false
         links.push link
+        source.weight += 1
+        target.weight += 1
       # select new link
       selected_link = link
       selected_node = null
@@ -328,7 +338,8 @@ restart = ->
           $("#conflits").append "<li>Les sommets #{sommet.id} et #{arete.target.id} sont de la même couleur</li>"
       if arete.target==sommet
         na += 1
-    $("#entrants").append "<td>#{na}</td>"
+    $("#entrants").append "<td>#{nodes[sommet.id].weight}</td>"
+    nodes[sommet.id].weight=na
   enscoul = {}
   enscoul[couleur[i]] = couleur[i] for i in [0..lastNodeId]
   if jeu
@@ -357,6 +368,7 @@ mousedown = ->
   node = 
     id: ++lastNodeId
     reflexive: false
+    weight: 0
   couleur[node.id]=node.id
   node.x = point[0]
   node.y = point[1]

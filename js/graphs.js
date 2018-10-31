@@ -40,27 +40,33 @@ drag_line = svg.append('svg:path').attr('class', 'link dragline hidden').attr('d
 nodes = [
   {
     id: 0,
-    reflexive: false
+    reflexive: false,
+    weight: 3
   },
   {
     id: 1,
-    reflexive: false
+    reflexive: false,
+    weight: 3
   },
   {
     id: 2,
-    reflexive: false
+    reflexive: false,
+    weight: 3
   },
   {
     id: 3,
-    reflexive: false
+    reflexive: false,
+    weight: 3
   },
   {
     id: 4,
-    reflexive: false
+    reflexive: false,
+    weight: 3
   },
   {
     id: 5,
-    reflexive: false
+    reflexive: false,
+    weight: 5
   }
 ];
 
@@ -197,8 +203,8 @@ tick = function() {
     dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
     normX = deltaX / dist;
     normY = deltaY / dist;
-    sourcePadding = 12;
-    targetPadding = 12;
+    sourcePadding = 6;
+    targetPadding = 6;
     sourceX = d.source.x + sourcePadding * normX;
     sourceY = d.source.y + sourcePadding * normY;
     targetX = d.target.x - (targetPadding * normX);
@@ -272,16 +278,21 @@ restart = function() {
     return d === selected_node;
   }).style('fill', function(d) {
     return coulJeu(d.id);
+  }).attr('r', function(d) {
+    return 6 + 2 * d.weight;
   }).classed('reflexive', function(d) {
     return d.reflexive;
   });
   // add new nodes
   g = circle.enter().append('svg:g');
-  g.append('svg:circle').attr('class', 'node').attr('r', 12).classed('selected', function(d) {
+  g.append('svg:circle').attr('class', 'node').attr('r', function(d) {
+    return 6 + 2 * d.weight;
+  }).classed('selected', function(d) {
     return d === selected_node;
   //.style('fill', (d) -> if d == selected_node then d3.rgb(colors(couleur[d.id])).brighter().toString() else colors(couleur[d.id]))
   }).style('fill', function(d) {
     return coulJeu(d.id);
+  //    .style('stroke-width', (d) -> (d.weight)+'px')
   }).style('stroke', function(d) {
     return d3.rgb(colors(couleur[d.id])).darker().toString();
   }).classed('reflexive', function(d) {
@@ -366,6 +377,8 @@ restart = function() {
         right: false
       };
       links.push(link);
+      source.weight += 1;
+      target.weight += 1;
     }
     // select new link
     selected_link = link;
@@ -410,7 +423,8 @@ restart = function() {
         na += 1;
       }
     }
-    $("#entrants").append(`<td>${na}</td>`);
+    $("#entrants").append(`<td>${nodes[sommet.id].weight}</td>`);
+    nodes[sommet.id].weight = na;
   }
   enscoul = {};
   for (i = q = 0, ref1 = lastNodeId; (0 <= ref1 ? q <= ref1 : q >= ref1); i = 0 <= ref1 ? ++q : --q) {
@@ -458,7 +472,8 @@ mousedown = function() {
   point = d3.mouse(this);
   node = {
     id: ++lastNodeId,
-    reflexive: false
+    reflexive: false,
+    weight: 0
   };
   couleur[node.id] = node.id;
   node.x = point[0];
