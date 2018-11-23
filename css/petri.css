@@ -1,5 +1,3 @@
-/*! HTML5 Boilerplate v5.0 | MIT License | http://h5bp.com/ */
-
 html {
     color: #222;
     font-size: 1em;
@@ -155,11 +153,6 @@ nav a:hover {
 .ie7 .title {
     padding-top: 20px;
 }
-
-/* ==========================================================================
-   Author's custom styles
-   ========================================================================== */
-
 svg {
   background-color: #FFE;
   cursor: default;
@@ -168,141 +161,18 @@ svg {
   -ms-user-select: none;
   -o-user-select: none;
   user-select: none;
+  width: 640px;
+  height: 480px;
 }
 
 svg:not(.active):not(.ctrl) {
   cursor: crosshair;
 }
-
-path.link {
-  fill: none;
-  stroke: #000;
-  stroke-width: 4px;
-  cursor: default;
-}
-
-svg:not(.active):not(.ctrl) path.link {
-  cursor: pointer;
-}
-
-path.link.selected {
-  stroke-dasharray: 10,1;
-}
-
-path.link.dragline {
-  pointer-events: none;
-}
-
-path.link.hidden {
-  stroke-width: 0;
-}
-
-circle.node {
-  stroke-width: 1.5px;
-  cursor: pointer;
-}
-
-circle.node.pion {
-  stroke: #000 !important;
-  stroke-width: 5px;
-  fill : black !important;
-
-}
-
-circle.node.arrivee {
-  stroke: red !important;
-  stroke-width: 5px;
-  r : 14px;
-  fill : white;
-}
-
-circle.node.depart {
-  stroke: green !important;
-  stroke-width: 5px;
-  r : 14px;
-  fill : white;
-}
-
-circle.node.selected {
-  stroke: black !important;
-  stroke-width: 4px;
-  r : 12px;
-}
-
 text {
-  font: 12px sans-serif;
+  fill: rgb(0,0,100);
   pointer-events: none;
 }
 
-text.id {
-  text-anchor: middle;
-  font-weight: bold;
-}
-
-.link {
-  fill:#000000 !important;
-  opacity:1 !important;
-  stroke:#000000 !important;
-  stroke-opacity:1 !important;
-  stroke-width : 4px;
-
-}
-
-
-
-
-
-
-
-
-#upload {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  margin-top: -200px;
-  margin-left: -200px;
-  width: 400px;
-  height: 400px;
-  background-image : url(icons/drop.png);
-  background-color : rgba(0,0,0,0.5);
-  background-size : 100% 100%;
-  z-index : 1000;
-  border : solid black 5px;
-  border-radius : 10px;
-  color : black;
-  text-align : center;
-  font-weight : bolder;
-}
-#upload .close {
-  position : absolute;
-  top : 0;
-  right : 0;
-  width : 25px;
-  height : 25px;
-  background-image : url(icons/close.png);
-  background-color : transparent;
-  background-size : 100% 100%;
-}
-#upload.slim {
-  background-color : rgba(0,0,0,0.25);
-}
-
-#upload p {
-  background-color : rgba(0,0,0,0.5);
-  border-radius : 10px;
-}
-#upload a {
-  color : white;
-  font-weight : bold;
-}
-.admin {
-  color:black;
-
-}
-
-/* ==========================================================================
-   Media Queries
-   ========================================================================== */
 
 @media only screen and (min-width: 480px) {
 

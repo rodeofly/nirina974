@@ -139,7 +139,7 @@ jeu = false;
 // mode jeu ou mode édition
 // update graph (called when needed)
 restart = function() {
-  var arete, cell, e, g, i, j, k, len, len1, len2, len3, len4, m, n, o, p, ref, ref1, s, sommet, sommet2, x, y;
+  var M, arete, cell, coeff, e, g, i, j, k, len, len1, len2, len3, len4, m, n, o, p, q, r, ref, ref1, ref2, ref3, ref4, ref5, s, sommeLigne, sommet, sommet2, u, v, x, y;
   
   // path (link) group
   path = path.data(links);
@@ -268,24 +268,43 @@ restart = function() {
       $("#departs").append(`<li>${sommet.id}</li>`);
     }
   }
+  M = [];
   for (x = n = 0, ref = nodes.length; (0 <= ref ? n < ref : n > ref); x = 0 <= ref ? ++n : --n) {
+    M[x] = [];
     for (y = o = 0, ref1 = nodes.length; (0 <= ref1 ? o < ref1 : o > ref1); y = 0 <= ref1 ? ++o : --o) {
-      cell = $(`table#matrAdj tr:nth-child(${x + 2}) td:nth-child(${y + 2})`);
-      for (p = 0, len4 = links.length; p < len4; p++) {
-        arete = links[p];
-        if (arete.right && arete.source === nodes[x] && arete.target === nodes[y]) {
-          cell.text(arete.poids);
+      M[x][y] = 0;
+    }
+  }
+  for (x = p = 0, ref2 = nodes.length; (0 <= ref2 ? p < ref2 : p > ref2); x = 0 <= ref2 ? ++p : --p) {
+    sommeLigne = 0;
+    for (y = q = 0, ref3 = nodes.length; (0 <= ref3 ? q < ref3 : q > ref3); y = 0 <= ref3 ? ++q : --q) {
+      if (x !== y) {
+        coeff = 0;
+        for (r = 0, len4 = links.length; r < len4; r++) {
+          arete = links[r];
+          if (arete.right && arete.source === nodes[x] && arete.target === nodes[y]) {
+            coeff = arete.poids;
+          }
+          if (arete.left && arete.source === nodes[y] && arete.target === nodes[x]) {
+            coeff = arete.poids;
+          }
+          if (!arete.left && !arete.right && arete.source === nodes[y] && arete.target === nodes[x]) {
+            coeff = arete.poids;
+          }
+          if (!arete.left && !arete.right && arete.source === nodes[x] && arete.target === nodes[y]) {
+            coeff = arete.poids;
+          }
         }
-        if (arete.left && arete.source === nodes[y] && arete.target === nodes[x]) {
-          cell.text(arete.poids);
-        }
-        if (!arete.left && !arete.right && arete.source === nodes[y] && arete.target === nodes[x]) {
-          cell.text(arete.poids);
-        }
-        if (!arete.left && !arete.right && arete.source === nodes[x] && arete.target === nodes[y]) {
-          cell.text(arete.poids);
-        }
+        M[x][y] = 0.1 * coeff / (nodes.length - 1);
+        sommeLigne += M[x][y];
       }
+    }
+    M[x][x] = 1.0 - sommeLigne;
+  }
+  for (x = u = 0, ref4 = nodes.length; (0 <= ref4 ? u < ref4 : u > ref4); x = 0 <= ref4 ? ++u : --u) {
+    for (y = v = 0, ref5 = nodes.length; (0 <= ref5 ? v < ref5 : v > ref5); y = 0 <= ref5 ? ++v : --v) {
+      cell = $(`table#matrAdj tr:nth-child(${x + 2}) td:nth-child(${y + 2})`);
+      cell.text(M[x][y].toLocaleString().replace(".", ","));
     }
   }
   
@@ -543,7 +562,7 @@ keydown = function() {
       case 80:
         // P
         if (selected_link) {
-          selected_link.poids = Math.min(selected_link.poids + 1, 8);
+          selected_link.poids = Math.min(selected_link.poids + 1, 10);
         }
         restart();
     }

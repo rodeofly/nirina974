@@ -3,22 +3,36 @@ $jq = $ # jquery
 
 joueur = "A"
 adversaire = { "A": "B", "B": "A" }
+totaljetons = 6
+totalactives = 1
+# define arrow markers for graph links
+svg = d3.select('#rhs').append('svg').attr('oncontextmenu', 'return false;').attr('width', width).attr('height', height)
+svg.append('svg:defs').append('svg:marker')
+  .attr('id', 'end-arrow')
+  .attr('viewBox', '0 -10 20 20')
+  .attr('refX', 48).attr('markerWidth', 6)
+  .attr('markerHeight', 6)
+  .attr('orient', 'auto').append('svg:path')
+  .attr('d', 'M0,-10L0,10L20,0')
+  .attr 'fill', '#000'
+# line displayed when dragging new nodes
+drag_line = svg.append('svg:path').attr('class', 'link dragline hidden').attr('d', 'M0,0L0,0')
 
-width = $jq("#rhs").width()
-height = $jq("#rhs").height()
+width = 800 #$jq("#rhs").width()
+height = 480 #$jq("#rhs").height()
 color = d3.scale.category20()
 
 json =
   nodes: [
-    # holds are group 0
-    { id:0, name: '>', group: 0, count: 4 }
+    # places are group 0
+    { id:0, name: '>', group: 0, count: 6 }
     { id:1, name: 'b', group: 0, count: 0 }
     { id:2, name: 'c', group: 0, count: 0 }
     { id:3, name: 'i', group: 0, count: 0 }
     { id:4, name: 'j', group: 0, count: 0 }
     { id:5, name: '^', group: 0, count: 0 }
 
-    # tasks are group 1
+    # transitions are group 1
     { id:6, name: 'x', group: 1 }
     { id:7, name: 'y', group: 1 }
     { id:8, name: 'z', group: 1 }
@@ -49,7 +63,7 @@ force
   .links( json.edges )
   .start()
 
-
+jetons = ['⠀','⠂','⠔','⠦','⠶','⠷','⠿','⣾','⣿']
 
 AND = (a, b) -> a and b
 all = (xs) -> xs.length and xs.reduce( AND, true )
@@ -61,15 +75,16 @@ active = (n) -> all ( e.source.count > 0 for e in incoming n  )
 holds = -> n for n in json.nodes when n.group is 0
 tasks = -> n for n in json.nodes when n.group is 1
 
-radius = 15
+radius = 16
 
-svg = d3.select("svg")
+#svg = d3.select("svg")
 links = svg.selectAll( "line.link" )
     .data( json.edges )
     .enter().append( "line" )
     .attr( "class", "link" )
     .style( "stroke", "#000" )
-    .style( "stroke-width", 2 );
+    .style( "stroke-width", 2 )
+    .style('marker-end', 'url(#end-arrow)')
 
 
 circs = svg.selectAll("circle.node")
@@ -80,13 +95,13 @@ circs = svg.selectAll("circle.node")
     .style( "fill", (d)->
          if d.name is '>' then 'lime'
          else if d.name is '^' then 'red'
-         else 'white' )
+         else 'yellow' )
     .style( "stroke", '#000' )
     .style( "stroke-width", '2' )
     .call( force.drag )
 
-dead_color = '#333'
-live_color = '#666'
+dead_color = '#077'
+live_color = '#a0a'
 click_color = '#999'
 
 box_color = (d, i) -> if active d then live_color else dead_color
@@ -95,14 +110,14 @@ texts = svg.selectAll("text")
   .data( holds )
   .enter().append( "text" )
   .call( force.drag )
-  .text( (d)-> if d.count is 0 then '' else d.count )
+  .text( (d)-> if d.count is 0 then '' else jetons[d.count] )
 
 rects = svg.selectAll("rect.node")
   .data( tasks )
   .enter().append( "rect" )
     .attr( "class", "node" )
-    .attr( "width", radius * 2 )
-    .attr( "height", radius * 2 )
+    .attr( "width", radius * 1.2 )
+    .attr( "height", radius * 1.2 )
     .style( "stroke", '#000' )
     .style( "stroke-width", '2' )
     .style( "fill", box_color )
@@ -117,10 +132,22 @@ rects = svg.selectAll("rect.node")
                .style( 'fill', click_color )
             rects.transition()
                .style( 'fill', box_color )
+            totaljetons = 0
+            totalactives = 0
+            for sommet in json.nodes
+               if sommet.id<6
+                  totaljetons += sommet.count
+               if active sommet
+                  totalactives += 1
             texts.transition()
-               .text( (d)-> if d.count is 0 then '' else d.count )
+               .text( (d)-> jetons[d.count])#if d.count is 0 then '' else d.count )
                joueur = adversaire[joueur]
                $(".kikijoue").text joueur
+               $(".ntot").text totaljetons
+               if totalactives > 0
+                   $("#obituary").text ''
+               else
+                   $("#obituary").text 'mais le réseau de Petri est mort !'
 
 
 node = svg.selectAll(".node")
@@ -130,8 +157,9 @@ node.append( "title" )
 
 force.on "tick", ->
   texts
-    .attr( "x", (d) -> d.x - 5 )
-    .attr( "y", (d) -> d.y + 5 )
+    .attr( "x", (d) -> d.x - 15 )
+    .attr( "y", (d) -> d.y + 12 )
+    .attr("font-size", radius*2.5)
   links
     .attr( "x1", (d) -> d.source.x )
     .attr( "y1", (d) -> d.source.y )
@@ -144,3 +172,8 @@ force.on "tick", ->
     .attr( "x", (d) -> d.x - radius )
     .attr( "y", (d) -> d.y - radius )
  
+
+$ ->
+    $("#rules").hide()
+    $("#ruletoggle").on "click", ->
+        $("#rules").toggle()

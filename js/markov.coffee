@@ -212,18 +212,32 @@ restart = ->
         premier_appel = false
       $("#departs").append "<li>#{sommet.id}</li>"
   
+  M = []
+  for x in [0...nodes.length]
+    M[x] = []
+    for y in [0...nodes.length]
+      M[x][y] = 0
+  for x in [0...nodes.length]
+    sommeLigne = 0
+    for y in [0...nodes.length]
+     if x!=y
+      coeff = 0
+      for arete in links
+        if arete.right and arete.source==nodes[x] and arete.target==nodes[y]
+          coeff = arete.poids
+        if arete.left and arete.source==nodes[y] and arete.target==nodes[x]
+          coeff = arete.poids
+        if not arete.left and not arete.right and arete.source==nodes[y] and arete.target==nodes[x]
+          coeff = arete.poids
+        if not arete.left and not arete.right and arete.source==nodes[x] and arete.target==nodes[y]
+          coeff = arete.poids
+      M[x][y] = 0.1*coeff/(nodes.length-1)
+      sommeLigne += M[x][y]
+    M[x][x] = 1.0-sommeLigne
   for x in [0...nodes.length]
     for y in [0...nodes.length]
       cell = $("table#matrAdj tr:nth-child(#{x+2}) td:nth-child(#{y+2})")
-      for arete in links
-        if arete.right and arete.source==nodes[x] and arete.target==nodes[y]
-          cell.text arete.poids
-        if arete.left and arete.source==nodes[y] and arete.target==nodes[x]
-          cell.text arete.poids
-        if not arete.left and not arete.right and arete.source==nodes[y] and arete.target==nodes[x]
-          cell.text arete.poids
-        if not arete.left and not arete.right and arete.source==nodes[x] and arete.target==nodes[y]
-          cell.text arete.poids
+      cell.text M[x][y].toLocaleString().replace(".",",")
   
   
   
@@ -438,7 +452,7 @@ keydown = ->
       when 80
         # P
         if selected_link
-          selected_link.poids = Math.min(selected_link.poids+1,8)
+          selected_link.poids = Math.min(selected_link.poids+1,10)
         restart()
   return
 
