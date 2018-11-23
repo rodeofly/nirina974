@@ -4,6 +4,7 @@ width = 800
 height = 480
 colors = d3.scale.category10()
 M = []
+somme = 0
 # define arrow markers for graph links
 svg = d3.select('#graf974').append('svg').attr('oncontextmenu', 'return false;').attr('width', width).attr('height', height)
 svg.append('svg:defs').append('svg:marker')
@@ -36,7 +37,7 @@ nodes = [
     id: 0
     pion: false 
     depart : true
-    arrivee:false # parce que depart
+    arrivee:false
   }
   {
     id: 1
@@ -46,12 +47,24 @@ nodes = [
   }
   {
     id: 2
+    pion: false 
+    depart : false
+    arrivee: false
+  }
+  {
+    id: 3
+    pion: false 
+    depart : false
+    arrivee: true
+  }
+  {
+    id: 4
     pion: true 
     depart : false
-    arrivee: true # parce que arrivee
+    arrivee: true
   }
 ]
-lastNodeId = 2
+lastNodeId = 4
 links = [
   {
     source: nodes[0]
@@ -68,11 +81,25 @@ links = [
     poids: 2
   }
   {
-    source: nodes[0]
-    target: nodes[2]
+    source: nodes[1]
+    target: nodes[3]
     left: false
     right: true
-    poids: 3
+    poids: 4
+  }
+  {
+    source: nodes[2]
+    target: nodes[3]
+    left: false
+    right: true
+    poids: 2
+  }
+  {
+    source: nodes[2]
+    target: nodes[4]
+    left: false
+    right: true
+    poids: 5
   }
 ]
 autre={"A": "B", "B": "A"}
@@ -152,18 +179,6 @@ restart = ->
         else
           selected_link = mousedown_link
         selected_node = null
-        if jeu
-          if selected_link.right
-            origine=selected_link.source
-            destination=selected_link.target
-          else
-            origine=selected_link.target
-            destination=selected_link.source
-          if origine.pion # le pion est ici
-            destination.pion=true
-            origine.pion=false # on bouge le pion
-            joueur=autre[joueur]
-            $(".joueurId").text joueur
       restart()
   
   
@@ -234,7 +249,12 @@ restart = ->
           coeff = arete.poids
       M[x][y] = 0.1*coeff/(nodes.length-1)
       sommeLigne += M[x][y]
-    M[x][x] = 1.0-sommeLigne
+#    M[x][x] = 1.0-sommeLigne
+    if sommeLigne > 0
+      for y in [0...nodes.length]
+        M[x][y] /= sommeLigne
+    else
+      M[x][x] = 1
   for x in [0...nodes.length]
     for y in [0...nodes.length]
       cell = $("table#matrAdj tr:nth-child(#{x+2}) td:nth-child(#{y+2})")
@@ -482,6 +502,7 @@ restart()
 $("#jeu").on "click",->
   jeu = not jeu
   premier_appel = jeu 
+#  numeropion = 0
   $("#lancer").toggle()
   $("#idjoueur").toggle()
   if jeu
@@ -492,8 +513,24 @@ $("#jeu").on "click",->
   restart() 
 
 $("#lancer").on "click", ->
-    sommet = nodes.filter( (d) -> d.pion )[0].index
-    $("#aff").text M[sommet]
+  sommet = nodes.filter( (d) -> d.pion )[0].index
+  if nodes[sommet].arrivee
+    $("#aff").text "Fini : #{autre[joueur]} a gagné le jeu."
+  else
+    loi = M[sommet]
+    seuil = Math.random()
+    somme = 0
+    k = 0
+    until somme > seuil
+        somme += loi[k]
+        k += 1
+    k -= 1
+    nodes[sommet].pion = false
+    nodes[k].pion = true
+    $("#aff").text "La probabilité que le pion passe par là était de #{loi[k].toLocaleString().replace('.',',')}"
+    joueur = autre[joueur]
+    $(".joueurId").text joueur
+    restart()
 
 #Drag an Drop interface
 DnDFileController = (selector, onDropCallback) ->
