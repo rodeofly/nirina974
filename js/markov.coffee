@@ -3,6 +3,7 @@ premier_appel = false
 width = 800
 height = 480
 colors = d3.scale.category10()
+M = []
 # define arrow markers for graph links
 svg = d3.select('#graf974').append('svg').attr('oncontextmenu', 'return false;').attr('width', width).attr('height', height)
 svg.append('svg:defs').append('svg:marker')
@@ -477,20 +478,22 @@ d3.select(window)
   .on 'keyup', keyup
 restart()
 
-$("#triche").on "click", ->
-  spoiler = not spoiler
-  restart()
 
 $("#jeu").on "click",->
   jeu = not jeu
   premier_appel = jeu 
-  $(".unique").toggle()
+  $("#lancer").toggle()
+  $("#idjoueur").toggle()
   if jeu
     $("#jeu").text "Créer"
     joueur="A"
   else
     $("#jeu").text "Jouer"
   restart() 
+
+$("#lancer").on "click", ->
+    sommet = nodes.filter( (d) -> d.pion )[0].index
+    $("#aff").text M[sommet]
 
 #Drag an Drop interface
 DnDFileController = (selector, onDropCallback) ->
@@ -589,7 +592,7 @@ $ ->
   $( "#genJSON" ).on "click", -> save("json")
   $( "#genSVG" ).on "click", -> save("svg")
   
-  $( "#hints, #matrice2" ).hide()
+  $( "#hints, #matrice2, #lancer, #idjoueur" ).hide()
   $( "#hintsToggler" ).on "click", ->
     $( "#hints" ).toggle()
   $( "#matriceToggler" ).on "click", ->
