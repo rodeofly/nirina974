@@ -1,6 +1,6 @@
 # set up SVG for D3
-width = 800
-height = 480
+width = 1024
+height = 1024
 colors = d3.scale.category10()
 [colors(i) for i in [0..9]]
 
@@ -138,7 +138,7 @@ tick = ->
   circle.attr 'transform', (d) -> return "translate(#{d.x}, #{d.y})"
 
 # init D3 force layout
-force = d3.layout.force().nodes(nodes).links(links).size([width/2, height/2]).linkDistance(80).charge(-500).on('tick', tick)
+force = d3.layout.force().nodes(nodes).links(links).size([width/2, height/2]).linkDistance(40).charge(-50).on('tick', tick)
 
 # mouse event vars
 selected_node = null

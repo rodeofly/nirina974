@@ -2,9 +2,9 @@
 // set up SVG for D3
 var DnDFileController, c, circle, circlesGroup, colors, diameter, dnd, drag_line, force, height, i, keydown, keyup, lastKeyDown, lastNodeId, links, mousedown, mousedown_link, mousedown_node, mousemove, mouseup, mouseup_node, nodes, nom, path, pathsGroup, radius, resetMouseVars, restart, save, selected_link, selected_node, spliceLinksForNode, svg, tick, voisins, width;
 
-width = 800;
+width = 1024;
 
-height = 480;
+height = 1024;
 
 colors = d3.scale.category10();
 
@@ -178,7 +178,7 @@ tick = function() {
 };
 
 // init D3 force layout
-force = d3.layout.force().nodes(nodes).links(links).size([width / 2, height / 2]).linkDistance(80).charge(-500).on('tick', tick);
+force = d3.layout.force().nodes(nodes).links(links).size([width / 2, height / 2]).linkDistance(40).charge(-50).on('tick', tick);
 
 // mouse event vars
 selected_node = null;
