@@ -25,7 +25,7 @@ color = d3.scale.category20()
 json =
   nodes: [
     # places are group 0
-    { id:0, name: '>', group: 0, count: 6 }
+    { id:0, name: '>', group: 0, count: 3 }
     { id:1, name: 'b', group: 0, count: 0 }
     { id:2, name: 'c', group: 0, count: 0 }
     { id:3, name: 'i', group: 0, count: 0 }
@@ -37,6 +37,7 @@ json =
     { id:7, name: 'y', group: 1 }
     { id:8, name: 'z', group: 1 }
     { id:9, name: '!', group: 1 }
+    { id:10, name: 'w', group: 1 }
   ]
   edges: [
     { source: 0, target: 9 }
@@ -49,6 +50,9 @@ json =
     { source: 7, target: 4 }
     { source: 4, target: 8 }
     { source: 8, target: 5 }
+    { source: 0, target: 10 }
+    { source: 10, target: 1 }
+    { source: 10, target: 3 }
   ];
 
 

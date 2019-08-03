@@ -37,7 +37,7 @@ json = {
       id: 0,
       name: '>',
       group: 0,
-      count: 6
+      count: 3
     },
     {
       id: 1,
@@ -89,6 +89,11 @@ json = {
       id: 9,
       name: '!',
       group: 1
+    },
+    {
+      id: 10,
+      name: 'w',
+      group: 1
     }
   ],
   edges: [
@@ -131,6 +136,18 @@ json = {
     {
       source: 8,
       target: 5
+    },
+    {
+      source: 0,
+      target: 10
+    },
+    {
+      source: 10,
+      target: 1
+    },
+    {
+      source: 10,
+      target: 3
     }
   ]
 };
