@@ -1,0 +1,80 @@
+<!doctype html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang=""> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang=""> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9" lang=""> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang=""> <!--<![endif]-->
+  <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>réseau de Petri</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="shortcut icon" href="apple-touch-icon.png">
+        <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="stylesheet" href="css/petri.css"/>
+        <script src="js/vendor/jquery.min.js"></script>
+        <script src="js/vendor/d3.v3.min.js"></script>
+  </head>
+  <body>
+        <!--[if lt IE 8]>
+            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        <div class="header-container">
+            <header class="wrapper clearfix">
+                <h1 class="title">Réseau de Petri</h1>
+                <nav>
+                    <ul>
+                        <li><a href="index.html">Nirina974</a></li>
+                    </ul>
+                </nav>
+            </header>
+        </div>
+        <div class="main-container">
+            <div class="main wrapper clearfix">
+
+                <article>
+                    <header>
+      <h3>C'est au joueur <span class="kikijoue">A</span> de jouer</h3>
+      <h3 id="obituary"></h3>
+                        <p></p>
+                    </header>
+                    <section>
+<div id="graf974">      <svg id="rhs">
+  
+</svg></div>
+
+
+                    </section>
+                    <footer>
+
+                    </footer>
+                </article>
+
+    <script src="js/petri.js"></script>
+                <aside>
+                    <h3 id="ruletoggle">Réseau de Petri</h3>
+                    <div id="rules">
+<p>Il y a <span class="ntot">6</span> <em>jetons</em> en tout.</p>
+<p>Ces jetons sont répartis entre des <em>places</em> (en rond).</p>
+<p>une <em>transition</em> (carrés) va, si on l'active,
+<ol>
+    <li>absorber un jeton par chacune des flèches qui vont vers la transition;</li>
+    <li>puis injecter un jeton vers chacune des places auxquelles elle mène.</li>
+</ol>
+<p>S'il n'y a pas assez de jetons pour activer une transition, elle est <em>inactive</em>. 
+Les transitions inactives sont de couleur cyan foncé.</p>
+</p>
+<p>Sinon la transition est <em>active</em> (en magenta). Pour l'activer, cliquer dessus.</p>
+<p>Une fois qu'un joueur a activé une transition, c'est à l'autre joueur de jouer.</p>
+<p>Lorsque toutes les transitions sont inactives, le joueur qui de ce fait, 
+ne peut plus jouer, a perdu le jeu.</p>
+<p>Dans ce cas on dit que le réseau de Petri est <em>mort</em>.</p>
+<p>Pour rejouer, recharger la page.</p>
+</div>
+                   
+                </aside>
+
+
+    </div>
+  </body>
+</html>

@@ -1,23 +1,40 @@
-premier_appel = false
 # set up SVG for D3
-width = 800
-height = 480
+width = 1024
+height = 1024
 colors = d3.scale.category10()
-jeu = false
-modeJeu = "Col"
-coulJeu = (nodeId) ->
-  if jeu
-    if statut[nodeId]==2
-      "white"
-    else
-      d3.rgb(colors(statut[nodeId]))
-  else
-    d3.rgb(colors(couleur[nodeId]))
+[colors(i) for i in [0..9]]
+
+voisins = (a,b) ->
+    rep = false
+    for arete in links
+        if arete.source == a and arete.target == b
+            rep = true
+            break
+        if arete.source == b and arete.target == a
+            rep = true
+            break
+    rep
 
 # define arrow markers for graph links
 svg = d3.select('#graf').append('svg').attr('oncontextmenu', 'return false;').attr('width', width).attr('height', height)
 # line displayed when dragging new nodes
 drag_line = svg.append('svg:path').attr('class', 'link dragline hidden').attr('d', 'M0,0L0,0')
+
+radius = 2
+diameter = 4
+nom = (e) ->
+    if e<Infinity
+        e
+    else
+        '∞'
+c = (d) ->
+    if d.eccentricity == radius
+        3
+    else
+        if d.eccentricity == diameter
+            2
+        else
+            0
 
 # set up initial nodes and links
 #  - nodes are known by 'id', not by index in array.
@@ -27,37 +44,35 @@ nodes = [
   {
     id: 0
     reflexive: false
-    weight: 3
+    eccentricity: 3
   }
   {
     id: 1
     reflexive: false
-    weight: 3
+    eccentricity: 4
   }
   {
     id: 2
     reflexive: false
-    weight: 3
+    eccentricity: 3
   }
   {
     id: 3
     reflexive: false
-    weight: 3
+    eccentricity: 2
   }
   {
     id: 4
     reflexive: false
-    weight: 3
+    eccentricity: 3
   }
   {
     id: 5
     reflexive: false
-    weight: 5
+    eccentricity: 4
   }
 ]
 lastNodeId = 5
-couleur = []
-couleur[i.toString()]=i for i in [0..10000]
 links = [
   {
     source: nodes[0]
@@ -67,13 +82,7 @@ links = [
   }
   {
     source: nodes[0]
-    target: nodes[4]
-    left: false
-    right: false
-  }
-  {
-    source: nodes[0]
-    target: nodes[5]
+    target: nodes[3]
     left: false
     right: false
   }
@@ -101,43 +110,7 @@ links = [
     left: false
     right: false
   }
-  {
-    source: nodes[5]
-    target: nodes[1]
-    left: false
-    right: false
-  }
-  {
-    source: nodes[5]
-    target: nodes[2]
-    left: false
-    right: false
-  }
-  {
-    source: nodes[5]
-    target: nodes[3]
-    left: false
-    right: false
-  }
 ]
-statut = {}
-statut[i]=2 for i in [0..lastNodeId]
-autre={"Bleu": "Rouge", "Rouge": "Bleu"}
-couleurJ={"Bleu": 0, "Rouge": 3}
-joueur = "Bleu"
-voisins = (sommet) ->
-  vois = []
-  for arete in links
-    if arete.source == sommet
-      vois.push statut[arete.target.id]
-    if arete.target == sommet
-      vois.push statut[arete.source.id]
-  vois
-jouable = (sommet) ->
-  if modeJeu == "Col"
-    couleurJ[joueur] not in voisins(sommet)
-  if modeJeu == "Snort"
-    couleurJ[autre[joueur]] not in voisins(sommet)
 
 # handles to link and node element groups
 pathsGroup = svg.append('svg:g')
@@ -165,7 +138,7 @@ tick = ->
   circle.attr 'transform', (d) -> return "translate(#{d.x}, #{d.y})"
 
 # init D3 force layout
-force = d3.layout.force().nodes(nodes).links(links).size([width/2, height/2]).linkDistance(80).charge(-500).on('tick', tick)
+force = d3.layout.force().nodes(nodes).links(links).size([width/2, height/2]).linkDistance(40).charge(-50).on('tick', tick)
 
 # mouse event vars
 selected_node = null
@@ -183,20 +156,51 @@ resetMouseVars = ->
 
 # update graph (called when needed)
 restart = ->
+  # compute eccentricities
+  for s in [0...nodes.length]
+      rumeur = []
+      for t in [0...nodes.length]
+          if s==t
+              rumeur[t] = 0
+          else
+              rumeur[t] = Infinity
+      n = 0
+      while n<=nodes.length
+          for t in [0...nodes.length]
+            for u in [0...nodes.length]
+              if t!=u and rumeur[t]==n and voisins(nodes[u],nodes[t]) and rumeur[u]>n
+                  rumeur[u] = n+1
+          n += 1
+      nodes[s].eccentricity = Math.max.apply(null,rumeur)
+  diameter = 0
+  radius = Infinity
+  $("#sommets").empty().append "<th>sommets</th>"
+  $("#entrants").empty().append "<th>excentricités</th>"
+  for s in nodes
+      $("#sommets").append "<td>#{s.id}</td>"
+      $("#entrants").append "<td>#{nom(s.eccentricity)}</td>"
+      if s.eccentricity > diameter
+          diameter = s.eccentricity
+      if s.eccentricity < radius
+          radius = s.eccentricity
+  $(".rayon").text nom radius 
+  $(".diamètre").text nom diameter 
+
+
   # path (link) group
   path = path.data(links)
   # update existing links
   path
-    .style('stroke', "black" )
-    .style('fill', "black" )
-    .style('stroke-width', '4px')
+    .style('stroke', "brown" )
+    .style('fill', "brown" )
+    .style('stroke-width', '3px')
     .classed 'selected', (d) -> d == selected_link
   # add new links
   path.enter().append('svg:path')
     .attr('class', 'link')
-    .style('stroke', "black" )
-    .style('fill', "black" )
-    .style('stroke-width', '4px')
+    .style('stroke', "brown" )
+    .style('fill', "brown" )
+    .style('stroke-width', '3px')
     .classed 'selected', (d) -> d == selected_link
     .on 'mousedown', (d) -> 
       if d3.event.ctrlKey    
@@ -217,32 +221,28 @@ restart = ->
   # update existing nodes (reflexive & selected visual states)
   circle.selectAll('circle')
     .classed 'selected', (d) -> d == selected_node
-    .style('fill', (d) -> coulJeu(d.id))
-    .attr('r', (d) -> 6+2*d.weight)
+    .style('fill', (d) -> colors(c(d)))
+    .attr('r', (d) -> 12)
     .classed 'reflexive', (d) -> d.reflexive
   # add new nodes
   g = circle.enter().append('svg:g')
   g.append('svg:circle')
     .attr('class', 'node')
-    .attr('r', (d) -> 6+2*d.weight)
+    .attr('r', 12)
     .classed 'selected', (d) -> d == selected_node
-    #.style('fill', (d) -> if d == selected_node then d3.rgb(colors(couleur[d.id])).brighter().toString() else colors(couleur[d.id]))
-    .style('fill', (d) -> coulJeu(d.id))
-#    .style('stroke-width', (d) -> (d.weight)+'px')
-    .style('stroke', (d) -> d3.rgb(colors(couleur[d.id])).darker().toString())
+    .style('fill', (d) -> colors(c(d)))
+    .style('stroke', (d) -> d3.rgb(colors(c(d))).darker().toString())
     .classed('reflexive', (d) -> d.reflexive)
     .on 'mouseover', (d) ->
       return if !mousedown_node or d == mousedown_node    
       # enlarge target node
       d3.select(this).attr 'transform', 'scale(1.1)'
       return
-
     .on 'mouseout', (d) ->
       return if !mousedown_node or d == mousedown_node     
       # unenlarge target node
       d3.select(this).attr 'transform', ''
       return
-
     .on 'mousedown', (d) ->
       return if d3.event.ctrlKey     
       # select node
@@ -257,14 +257,7 @@ restart = ->
         .classed('hidden', false)
         .attr 'd', "M#{mousedown_node.x}, #{mousedown_node.y}L#{mousedown_node.x}, #{mousedown_node.y}"
       restart()
-      if jeu
-        if jouable(selected_node) or modeJeu=="Col"
-          statut[selected_node.id] = couleurJ[joueur]
-          joueur=autre[joueur]
-          $(".joueur").text joueur
-          restart()
       return
-
    .on 'mouseup', (d) ->
       return if !mousedown_node      
       # needed by FF
@@ -300,14 +293,12 @@ restart = ->
           left: false
           right: false
         links.push link
-        source.weight += 1
-        target.weight += 1
       # select new link
       selected_link = link
       selected_node = null
       restart()
       
-  # show node IDs
+  # show node eccentricity
   g.append('svg:text')
     .attr('x', 0)
     .attr('y', 4)
@@ -317,59 +308,20 @@ restart = ->
   circle.exit().remove()
   # set the graph in motion
   force.start()
-  # calculs sur les degrés et les couleurs
-  $("#matrAdj").empty().append '<tr id="sommets2"></tr>'
-  $("#sommets, #sommets2").empty().append "<th>sommets</th>"
-  $("#entrants").empty().append "<th>degrés</th>"
-  $("#conflits").empty()
-  for sommet in nodes
-    $("#sommets").append "<td>#{sommet.id}</td>"
-    $("#sommets2").append "<th>#{sommet.id}</th>"
-    $("#matrAdj").append "<tr id='sa#{sommet.id}'><th>#{sommet.id}</th></tr>"
-    for sommet2 in nodes
-      $("#sa#{sommet.id}").append "<td>0</td>"
-    na = 0
-    c1 = couleur[sommet.id]
-    for arete in links
-      if arete.source==sommet
-        na += 1
-        c2 = couleur[arete.target.id]
-        if c1==c2 and not jeu
-          $("#conflits").append "<li>Les sommets #{sommet.id} et #{arete.target.id} sont de la même couleur</li>"
-      if arete.target==sommet
-        na += 1
-    $("#entrants").append "<td>#{nodes[sommet.id].weight}</td>"
-    nodes[sommet.id].weight=na
-  enscoul = {}
-  enscoul[couleur[i]] = couleur[i] for i in [0..lastNodeId]
-  if jeu
-    $("#chroma1").text ""
-  else
-    $("#chroma1").text "Le graphe est actuellement colorié en #{(v for k,v of enscoul).length} couleurs. Peut-on faire moins ?"
-  for x in [0...nodes.length]
-    for y in [0...nodes.length]
-      cell = $("table#matrAdj tr:nth-child(#{x+2}) td:nth-child(#{y+2})")
-      for arete in links
-        if arete.source==nodes[x] and arete.target==nodes[y]
-          cell.text 1
-        if arete.source==nodes[y] and arete.target==nodes[x]
-          cell.text 1
-  return
 
 mousedown = ->
   # prevent I-bar on drag
   #d3.event.preventDefault();
   # because :active only works in WebKit?
   svg.classed 'active', true
-  if d3.event.ctrlKey or mousedown_node or mousedown_link or jeu
+  if d3.event.ctrlKey or mousedown_node or mousedown_link
     return
   # insert new node at point
   point = d3.mouse(this)
   node = 
     id: ++lastNodeId
     reflexive: false
-    weight: 0
-  couleur[node.id]=node.id
+    eccentricity: Infinity
   node.x = point[0]
   node.y = point[1]
   nodes.push node
@@ -377,7 +329,7 @@ mousedown = ->
   return
 
 mousemove = ->
-  return if !mousedown_node or jeu
+  return if !mousedown_node
   # update drag line
   drag_line.attr 'd', "M#{mousedown_node.x}, #{mousedown_node.y}L#{d3.mouse(this)[0]}, #{d3.mouse(this)[1]}"
   restart()
@@ -416,29 +368,13 @@ keydown = ->
     # backspace
     when 8, 46
       # delete
-      if selected_node and not jeu
+      if selected_node
         nodes.splice nodes.indexOf(selected_node), 1
         spliceLinksForNode selected_node
-      else if selected_link and not jeu
+      else if selected_link
         links.splice links.indexOf(selected_link), 1
       selected_link = null
       selected_node = null
-      restart()
-      # M pour moins (diminuer couleur)
-    when 77, 109
-      if selected_node and not jeu
-        index = selected_node.id
-        couleur[index] -= 1
-        if couleur[index]<0
-          couleur[index] += 10
-      restart()
-      # P pour plus (augmenter couleur)
-    when 80, 112
-      if selected_node and not jeu
-        index = selected_node.id
-        couleur[index] += 1
-        if couleur[index]>9
-          couleur[index] -= 10
       restart()
   return
 
@@ -503,7 +439,7 @@ dnd = new DnDFileController '#upload', (files) ->
   reader = new FileReader
   reader.onloadend = (e) -> 
     data = JSON.parse(@result)
-    console.log data
+#    console.log data
     pathsGroup.remove()
     circlesGroup.remove()
     
@@ -523,7 +459,6 @@ dnd = new DnDFileController '#upload', (files) ->
       t.right = false
       links.push t
 
-    console.log links
     force = d3.layout.force().nodes(nodes).links(links).size([width/2, height/2]).linkDistance(80).charge(-200).on('tick', tick)
     restart()
     
@@ -561,33 +496,13 @@ $ ->
   $( "#genJSON" ).on "click", -> save("json")
   $( "#genSVG" ).on "click", -> save("svg")
   
-  $( "#hints, #rules, #defs, #matrice2" ).hide()
+  $( "#hints, #defs" ).hide()
   $( "#hintsToggler" ).on "click", ->
     $( "#hints" ).toggle()
-  $( "#rulesToggler" ).on "click", ->
-    $( "#rules" ).toggle()
   $( "#defsToggler" ).on "click", ->
     $( "#defs" ).toggle()
   $( "#matriceToggler" ).on "click", ->
     $( "#matrice2" ).toggle()
-  $( "#bCol" ).on "click", ->
-    jeu = not jeu
-    $(".unique").toggle()
-    modeJeu = "Col"
-    joueur = "Bleu"
-    if jeu
-      statut = {}
-      statut[i]=2 for i in [0..lastNodeId]
-    restart()
-  $( "#bSnort" ).on "click", ->
-    jeu = not jeu
-    $(".unique").toggle()
-    modeJeu = "Snort"
-    joueur = "Bleu"
-    if jeu
-      statut = {}
-      statut[i]=2 for i in [0..lastNodeId]
-    restart()
 
     
 

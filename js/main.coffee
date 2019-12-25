@@ -23,8 +23,14 @@ nodes = [
   {
     id: 2
   }
+  {
+    id: 3
+  }
+  {
+    id: 4
+  }
 ]
-lastNodeId = 2
+lastNodeId = 4
 links = [
   {
     source: nodes[0]
@@ -38,10 +44,46 @@ links = [
     left: false
     right: false
   }
+  {
+    source: nodes[0]
+    target: nodes[3]
+    left: false
+    right: false
+  }
+  {
+    source: nodes[0]
+    target: nodes[4]
+    left: false
+    right: false
+  }
+  {
+    source: nodes[1]
+    target: nodes[2]
+    left: false
+    right: false
+  }
+  {
+    source: nodes[1]
+    target: nodes[4]
+    left: false
+    right: false
+  }
+  {
+    source: nodes[2]
+    target: nodes[3]
+    left: false
+    right: false
+  }
+  {
+    source: nodes[3]
+    target: nodes[4]
+    left: false
+    right: false
+  }
 ]
 
-nom = ["ici","graphes orientés","graphes non orientés"]
-lien = ["index.html","digraphs.html","graphs.html"]
+nom = ["graphes","orientés","non orientés","stochastiques","de Petri"]
+lien = ["index.html","digraphs.html","graphs.html","markov.html","petri.html"]
 
 
 # handles to link and node element groups
@@ -124,7 +166,7 @@ restart = ->
   g = circle.enter().append('svg:g')
   g.append('svg:circle')
     .attr('class', 'node')
-    .attr('r', 80)
+    .attr('r', 40)
     .style('fill', (d) -> if d == selected_node then d3.rgb(colors(d.id)).brighter().toString() else colors(d.id))
     .style('stroke', (d) -> d3.rgb(colors(d.id)).darker().toString())
     .classed('reflexive', (d) -> d.reflexive)
