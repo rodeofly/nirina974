@@ -1,0 +1,132 @@
+<!doctype html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang=""> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang=""> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9" lang=""> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang=""> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>Nirina974</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="shortcut icon" href="apple-touch-icon.png">
+        <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+        <link rel="stylesheet" href="css/normalize.min.css">
+        <link rel="stylesheet" href="css/main.css">
+
+        <script src="js/vendor/modernizr-2.8.3-respond-1.4.2.min.js"></script>
+
+    </head>
+    <body>
+        <!--[if lt IE 8]>
+            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        <div class="header-container">
+            <header class="wrapper clearfix">
+                <h1 class="title">Nirina974</h1>
+                <nav>
+                    <ul>
+                        <li><a href="index.html">Nirina974</a></li>
+                    </ul>
+                </nav>
+            </header>
+        </div>
+
+        <div class="main-container">
+            <div class="main wrapper clearfix">
+
+                <article>
+                    <header>
+                        <h1>Surréels</h1>
+                        <p></p>
+                    </header>
+                    <section>
+                        <h3 class="unique" style="display:none;">Le pion est sur le sommet en traits épais. </h3>
+                        <h3 class="unique" style="display:none;">Pour jouer, cliquer sur l'arête que doit emprunter le pion. </h3>
+                        <h2 class="unique" style="display:none;">C'est au joueur <span class="joueurId">Bleu</span> de jouer.</h2>
+                        <button id="genSVG">→SVG</button>
+                        <button id="genJSON">Garder le graphe</button>
+                        <button id="importJSON">Récupérer un graphe</button>
+                        <button id="jeu">Jouer</button>
+ <div id="upload" style="display:none;"><div class="close"></div>Glisser un graphe json</div>
+        <input type="file" style="display:none" id="file_upload" />
+<a id="save" href="" download=""></a>
+<div id="graf974"></div>
+
+                    </section>
+                    <footer>
+
+                    </footer>
+                </article>
+                
+                <aside>
+                    <h2><span id="defsToggler">Définitions</span></h2>
+                    <div id="defs">                        <p>
+                            <ul>
+                                <li>Les cercles numérotés représentent des <em>sommets</em> du graphe.</li>
+                                <li>Certains sommets peuvent être reliés entre eux par des <em>arêtes</em>.</li>
+                                <li>S'il y a une arête entre deux sommets, on dit qu'ils sont <em>adjacents</em>.</li>
+                                <li>Le sommet auquel n'arrive aucune arête est <em>le départ</em>.</li>
+                                <li>Un sommet duquel ne part aucune arête est <em>une arrivée</em>.</li>
+                            </ul>
+                        </p>
+                    </div>
+                </aside>
+                
+                <aside>
+                    <h3>Astuces <span id="hintsToggler"><img src="css/icons/hint.png" style="width : 25px;"></span></h3>
+                    <div id="hints">
+<p>Pour créer un sommet, cliquer dans une zone vide.</p>
+<p>Pour déplacer ce sommet, maintenir <b>[ctrl]+[clic]</b>
+<p>Cliquer sur un sommet pour le selectionner. Appuyer sur <b>[suppr]</b> pour le supprimer.</p>
+<p>Pour créer une arête, glisser avec la souris d'un sommet vers un autre.</p>
+<p>Pour selectionner une arête, maintenir <b>[ctrl]+clic</b>.</p>
+<p>Pour changer l'orientation d'une arête, la selectionner puis frapper <b>[G]</b>auche, <b>[D]</b>roite ou <b>[A]</b>ucun</p>
+<p>Pour colorier l'arête sélectionnée, <b>[B]</b>leu, <b>[R]</b>ouge ou <b>[N]</b>oir.</p>
+</div>
+                   
+                </aside>
+                <aside>                        
+                    <h3><span id="rulesToggler">Pour jouer</span></h3>
+                <div id="rules">
+                        <p>Pour jouer sur un <a href="https://en.wikipedia.org/wiki/Surreal_number">surréel</a>, il faut un seul pion 
+                        (comme ceci: ♟) pour deux joueurs.
+                        <ol>
+                            <li>On commence par placer le pion sur le sommet de départ.</li>
+                            <li>Le premier joueur déplace le pion depuis le sommet où il se trouve, 
+                            vers un sommet adjacent, en empruntant une arête de sa couleur, ou noire.</li>
+                            <li>Le second joueur déplace alors à son tour le pion, depuis le sommet où 
+                            il se trouve actuellement, vers un sommet adjacent (mais uniquement le long d'une arête de sa couleur, ou noire)...</li>
+                            <li>... et ainsi de suite, chacun son tour déplace le pion depuis le sommet où il se trouve actuellement, vers 
+                            un sommet adjacent à celui-ci. Tant que c'est possible...</li>
+                            <li>Le premier des deux joueurs qui ne peut plus bouger le pion (parce que le pion 
+                            est quelque part d'où ne part aucune arête de la couleur du joueur, ni noire) a <b>perdu</b>.</li>
+                        </ol>
+</div>
+                </aside>
+                <aside>
+<h3>Liste des arrivées :</h3>
+<ul id="arrivees"></ul>
+<h3>Liste des départs (normalement il ne devrait y en avoir qu'un) :</h3>
+<ul id="departs"></ul>
+                </aside>
+
+            </div> <!-- #main -->
+        </div> <!-- #main-container -->
+
+        <div class="footer-container">
+            <footer class="wrapper">
+                <h3>© I.R.E.M.I. La Réunion, 2022</h3>
+            </footer>
+        </div>
+
+        <script src="js/vendor/jquery.min.js"></script>
+        <!--script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.2.min.js"><\/script>')</script-->
+        <script src="js/vendor/d3.v3.min.js"></script>
+        <script src="js/onag.js"></script>
+
+
+    </body>
+</html>
