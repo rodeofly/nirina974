@@ -1,4 +1,3 @@
-  
 # set up SVG for D3
 width = 800
 height = 480
@@ -29,8 +28,11 @@ nodes = [
   {
     id: 4
   }
+  {
+    id: 5
+  }
 ]
-lastNodeId = 4
+lastNodeId = 5
 links = [
   {
     source: nodes[0]
@@ -45,20 +47,8 @@ links = [
     right: false
   }
   {
-    source: nodes[0]
-    target: nodes[3]
-    left: false
-    right: false
-  }
-  {
-    source: nodes[0]
-    target: nodes[4]
-    left: false
-    right: false
-  }
-  {
     source: nodes[1]
-    target: nodes[2]
+    target: nodes[3]
     left: false
     right: false
   }
@@ -69,21 +59,15 @@ links = [
     right: false
   }
   {
-    source: nodes[2]
-    target: nodes[3]
-    left: false
-    right: false
-  }
-  {
-    source: nodes[3]
-    target: nodes[4]
+    source: nodes[1]
+    target: nodes[5]
     left: false
     right: false
   }
 ]
 
-nom = ["graphes","orientés","non orientés","stochastiques","de Petri"]
-lien = ["index.html","digraphs.html","graphs.html","markov.html","petri.html"]
+nom = ["graphes","orientés","non orientés","stochastiques","de Petri","Conway"]
+lien = ["index.html","digraphs.html","graphs.html","markov.html","petri.html","onag.html"]
 
 
 # handles to link and node element groups
@@ -112,7 +96,7 @@ tick = ->
   circle.attr 'transform', (d) -> return "translate(#{d.x}, #{d.y})"
 
 # init D3 force layout
-force = d3.layout.force().nodes(nodes).links(links).size([width, height]).linkDistance(250).charge(-500).on('tick', tick)
+force = d3.layout.force().nodes(nodes).links(links).size([width, height]).linkDistance(200).charge(-500).on('tick', tick)
 
 # mouse event vars
 selected_node = null
