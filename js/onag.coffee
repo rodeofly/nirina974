@@ -335,7 +335,7 @@ mousedown = ->
     pion: false
     depart:false
     arrivee:false
-    color: black
+    color: "black"
   node.x = point[0]
   node.y = point[1]
   nodes.push node
