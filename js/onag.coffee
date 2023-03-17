@@ -47,7 +47,25 @@ nodes = [
     id: 2
     pion: false 
     depart : false
-    arrivee: true # parce que arrivee
+    arrivee: false
+  }
+  {
+    id: 3
+    pion: false 
+    depart : false
+    arrivee: false
+  }
+  {
+    id: 4
+    pion: false 
+    depart : false
+    arrivee: false
+  }
+  {
+    id: 5
+    pion: false 
+    depart : false
+    arrivee: true
   }
 ]
 lastNodeId = 2
@@ -60,7 +78,7 @@ links = [
     color: "blue"
   }
   {
-    source: nodes[1]
+    source: nodes[0]
     target: nodes[2]
     left: false
     right: true
@@ -68,10 +86,59 @@ links = [
   }
   {
     source: nodes[0]
+    target: nodes[3]
+    left: false
+    right: true
+    color: "blue"
+  }
+  {
+    source: nodes[1]
     target: nodes[2]
     left: false
     right: true
-    color: "black"
+    color: "blue"
+  }
+  {
+    source: nodes[1]
+    target: nodes[5]
+    left: false
+    right: true
+    color: "red"
+  }
+  {
+    source: nodes[2]
+    target: nodes[3]
+    left: false
+    right: true
+    color: "blue"
+  }
+  {
+    source: nodes[2]
+    target: nodes[4]
+    left: false
+    right: true
+    color: "red"
+  }
+  {
+    source: nodes[2]
+    target: nodes[5]
+    left: false
+    right: true
+    color: "red"
+  }
+  {
+    source: nodes[3]
+    target: nodes[4]
+    left: false
+    right: true
+    color: "red"
+  }
+  {
+    source: nodes[4]
+    target: nodes[5]
+    left: false
+    right: true
+    color: "blue"
   }
 ]
 autre={"Bleu": "Rouge", "Rouge": "Bleu"}
